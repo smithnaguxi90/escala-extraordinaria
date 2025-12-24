@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escala Pro 2026 | Enterprise</title>
+    <meta name="description" content="Gestão de Escala Profissional 2026" />
+
+    <!-- Fontes e Ícones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>"
+    />
+
+    <style>
+      /* --- VARIÁVEIS CSS (THEMING) --- */
+      :root {
+        --primary: #3b82f6;
+        --primary-dark: #2563eb;
+        --primary-light: #eff6ff;
+
+        --bg-body: #f8fafc;
+        --bg-surface: #ffffff;
+        --bg-hover: #f1f5f9;
+
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --radius: 12px;
+        --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      [data-theme="dark"] {
+        --bg-body: #0f172a;
+        --bg-surface: #1e293b;
+        --bg-hover: #334155;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --primary-light: rgba(59, 130, 246, 0.1);
+        --shadow-sm: none;
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+      }
+
+      /* --- RESET & BASE --- */
+      * {
+        box-sizing: border-box;
+        outline: none;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        margin: 0;
+        line-height: 1.6;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      /* --- LAYOUT --- */
+      .app-layout {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        min-height: 100vh;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      /* --- HEADER --- */
+      .top-nav {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px); /* Safari support */
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+      .brand-info h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.5px;
+      }
+      .brand-info span {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+
+      .nav-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      /* --- BUTTONS --- */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 1px solid transparent;
+        background: transparent;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: var(--bg-surface);
+        border-color: var(--border);
+        color: var(--text-main);
+      }
+      .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--bg-hover);
+      }
+
+      .btn-icon {
+        padding: 8px;
+        border-radius: 50%;
+        color: var(--text-muted);
+      }
+      .btn-icon:hover {
+        background: var(--bg-hover);
+        color: var(--text-main);
+      }
+
+      /* --- DASHBOARD --- */
+      .dashboard {
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 24px;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .stats-header {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+      }
+
+      .stat-item {
+        margin-bottom: 16px;
+      }
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      .progress-bg {
+        height: 8px;
+        background: var(--bg-hover);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.6s ease-out;
+      }
+
+      /* USER COLORS */
+      .user-jefferson {
+        --u-color: #3b82f6;
+      }
+      .user-jesse {
+        --u-color: #f59e0b;
+      }
+      .user-junior {
+        --u-color: #10b981;
+      }
+
+      /* CONTENT */
+      .content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .toolbar {
+        background: var(--bg-surface);
+        padding: 1rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 200px;
+      }
+      .search-box svg {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        width: 18px;
+        height: 18px;
+      }
+      .search-input {
+        width: 100%;
+        padding: 10px 10px 10px 40px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-body);
+        color: var(--text-main);
+        font-size: 0.9rem;
+      }
+      .search-input:focus {
+        border-color: var(--primary);
+        background: var(--bg-surface);
+      }
+
+      .select-input {
+        padding: 10px 30px 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-body)
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")
+          no-repeat right 10px center;
+        background-size: 16px;
+        appearance: none;
+        color: var(--text-main);
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      /* CALENDAR GRID */
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .shift-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        transition: var(--transition);
+        animation: fadeUp 0.4s ease-out forwards;
+        opacity: 0;
+      }
+      .shift-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+      }
+
+      @keyframes fadeUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .shift-header {
+        padding: 12px 16px;
+        background: var(--bg-hover);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .shift-badge {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 99px;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .badge-normal {
+        background: var(--bg-body);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+      }
+      .badge-feriado {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+      }
+      .badge-extra {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+      }
+      .badge-today {
+        background: var(--primary-light);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+      }
+
+      .shift-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+      }
+
+      .avatar::after {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        border: 2px solid var(--bg-surface);
+        opacity: 0.5;
+      }
+
+      .shift-details {
+        text-align: center;
+      }
+      .shift-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+      .shift-date {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      /* --- MODAL --- */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-backdrop.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .modal-content {
+        background: var(--bg-surface);
+        width: 100%;
+        max-width: 450px;
+        border-radius: 16px;
+        padding: 24px;
+        transform: scale(0.95);
+        transition: transform 0.2s;
+        box-shadow: var(--shadow-md);
+      }
+      .modal-backdrop.active .modal-content {
+        transform: scale(1);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* --- TOAST --- */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--bg-surface);
+        padding: 16px 24px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-left: 4px solid var(--primary);
+        z-index: 2000;
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        font-weight: 500;
+        font-size: 0.9rem;
+        border: 1px solid var(--border);
+        border-left-width: 4px;
+      }
+      .toast-success {
+        border-left-color: var(--success);
+      }
+      .toast-warning {
+        border-left-color: var(--warning);
+      }
+      .toast-error {
+        border-left-color: var(--danger);
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* --- MOBILE --- */
+      @media (max-width: 768px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+          padding: 1rem;
+        }
+        .top-nav {
+          padding: 1rem;
+        }
+        .sidebar {
+          order: -1;
+        }
+        .search-box {
+          width: 100%;
+          order: 3;
+          margin-top: 8px;
+        }
+        .filters {
+          display: flex;
+          gap: 8px;
+          width: 100%;
+        }
+        .filters select {
+          flex: 1;
+        }
+      }
+
+      @media print {
+        body {
+          background: white;
+          color: black;
+        }
+        .top-nav,
+        .toolbar,
+        .btn,
+        .modal-backdrop,
+        .toast {
+          display: none !important;
+        }
+        .dashboard {
+          display: block;
+          padding: 0;
+        }
+        .sidebar {
+          display: none;
+        }
+        .calendar-grid {
+          display: block;
+        }
+        .shift-card {
+          border: 1px solid #ccc;
+          page-break-inside: avoid;
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          padding: 10px;
+        }
+        .shift-header {
+          background: none;
+          width: 150px;
+          border-bottom: none;
+        }
+        .shift-body {
+          flex-direction: row;
+          padding: 0;
+          gap: 20px;
+        }
+        .avatar {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- HEADER -->
+      <header class="top-nav">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <h1>Escala 2026</h1>
+            <span>Enterprise Edition</span>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <button class="btn btn-icon" id="themeToggle" title="Alternar Tema">
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <div style="position: relative">
+            <button class="btn btn-secondary" onclick="app.toggleMenu()">
+              ⚙️ Opções
+            </button>
+            <div
+              id="dropdownMenu"
+              style="
+                position: absolute;
+                right: 0;
+                top: 120%;
+                background: var(--bg-surface);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                width: 220px;
+                display: none;
+                flex-direction: column;
+                box-shadow: var(--shadow-md);
+                overflow: hidden;
+                z-index: 10;
+              "
+            >
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                "
+                onclick="app.exportCSV(); app.toggleMenu()"
+              >
+                📄 Exportar CSV
+              </button>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                "
+                onclick="app.backupData(); app.toggleMenu()"
+              >
+                💾 Backup JSON
+              </button>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                "
+                onclick="document.getElementById('importFile').click(); app.toggleMenu()"
+              >
+                📂 Restaurar Backup
+              </button>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                "
+                onclick="window.print(); app.toggleMenu()"
+              >
+                🖨️ Imprimir
+              </button>
+              <div
+                style="border-top: 1px solid var(--border); margin: 4px 0"
+              ></div>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                  color: var(--danger);
+                "
+                onclick="app.resetData(); app.toggleMenu()"
+              >
+                ⚠️ Resetar Tudo
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- HIDDEN FILE INPUT -->
+      <input
+        type="file"
+        id="importFile"
+        style="display: none"
+        accept=".json"
+        onchange="app.importBackup(this)"
+      />
+
+      <!-- DASHBOARD -->
+      <main class="dashboard">
+        <!-- SIDEBAR STATS -->
+        <aside class="sidebar">
+          <div class="card">
+            <div class="stats-header">Distribuição Anual</div>
+            <div id="statsContainer"></div>
+            <div
+              style="
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 1px solid var(--border);
+                font-size: 0.85rem;
+                color: var(--text-muted);
+              "
+            >
+              Total de plantões em 2026: <strong id="totalShifts">0</strong>
+            </div>
+          </div>
+
+          <div
+            class="card"
+            style="
+              background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+              );
+              color: white;
+              border: none;
+            "
+          >
+            <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px">
+              Próximo Plantão
+            </div>
+            <div id="nextShiftInfo" style="font-size: 1.5rem; font-weight: 700">
+              -
+            </div>
+            <div id="nextShiftDate" style="font-size: 0.9rem; opacity: 0.9">
+              -
+            </div>
+          </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <section class="content">
+          <div class="toolbar">
+            <div class="search-box">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                id="searchInput"
+                class="search-input"
+                placeholder="Buscar data ou nome..."
+                onkeyup="app.filter()"
+              />
+            </div>
+
+            <div class="filters">
+              <select
+                id="monthFilter"
+                class="select-input"
+                onchange="app.filter()"
+              >
+                <option value="all">📅 Todo o Ano</option>
+                <option value="1">Janeiro</option>
+                <option value="2">Fevereiro</option>
+                <option value="3">Março</option>
+                <option value="4">Abril</option>
+                <option value="5">Maio</option>
+                <option value="6">Junho</option>
+                <option value="7">Julho</option>
+                <option value="8">Agosto</option>
+                <option value="9">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
+
+              <select
+                id="personFilter"
+                class="select-input"
+                onchange="app.filter()"
+              >
+                <option value="all">👤 Todos</option>
+                <option value="Jefferson">Jefferson</option>
+                <option value="Jessé">Jessé</option>
+                <option value="Júnior">Júnior</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="gridContainer" class="calendar-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal-backdrop" id="editModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Editar Plantão</h2>
+          <button class="btn btn-icon" onclick="app.closeModal()">
+            &times;
+          </button>
+        </div>
+
+        <input type="hidden" id="editIndex" />
+
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div>
+            <label
+              style="
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                font-size: 0.9rem;
+              "
+              >Data do Plantão</label
+            >
+            <input type="date" id="editDate" class="search-input" />
+            <div
+              style="
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                margin-top: 4px;
+              "
+            >
+              Alterar a data fará uma troca com quem estiver no destino.
+            </div>
+          </div>
+
+          <div>
+            <label
+              style="
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                font-size: 0.9rem;
+              "
+              >Colaborador</label
+            >
+            <select id="editName" class="select-input" style="width: 100%">
+              <option value="Jefferson">Jefferson</option>
+              <option value="Jessé">Jessé</option>
+              <option value="Júnior">Júnior</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              style="
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                font-size: 0.9rem;
+              "
+              >Tipo</label
+            >
+            <select id="editType" class="select-input" style="width: 100%">
+              <option value="Normal">Normal</option>
+              <option value="Feriado">Feriado</option>
+              <option value="Extra">Extra</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="app.closeModal()">
+            Cancelar
+          </button>
+          <button class="btn btn-primary" onclick="app.saveChanges()">
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /**
+       * UTILS: Date & Helper Functions
+       */
+      const Utils = {
+        formatDateDisplay: (dateStr) => {
+          const [y, m, d] = dateStr.split("-");
+          const date = new Date(y, m - 1, d);
+          return new Intl.DateTimeFormat("pt-BR", {
+            day: "numeric",
+            month: "long",
+            weekday: "long",
+          }).format(date);
+        },
+        formatShortDate: (dateStr) => {
+          const [y, m, d] = dateStr.split("-");
+          const date = new Date(y, m - 1, d);
+          return new Intl.DateTimeFormat("pt-BR", {
+            day: "2-digit",
+            month: "short",
+          }).format(date);
+        },
+        normalize: (str) =>
+          str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase(),
+        // CORREÇÃO: Usa timezone local para garantir que 'Hoje' esteja correto
+        getLocalISODate: () => {
+          const d = new Date();
+          const offset = d.getTimezoneOffset() * 60000;
+          return new Date(d - offset).toISOString().split("T")[0];
+        },
+        isToday: (dateStr) => {
+          const todayStr = Utils.getLocalISODate();
+          return dateStr === todayStr;
+        },
+        showToast: (msg, type = "success") => {
+          const toast = document.createElement("div");
+          toast.className = `toast toast-${type}`;
+          toast.textContent = msg;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 3000);
+        },
+      };
+
+      /**
+       * SERVICE: Data & Storage Management
+       */
+      const DataService = {
+        KEY: "escala_ent_2026_v2",
+
+        getInitialData() {
+          const stored = localStorage.getItem(this.KEY);
+          if (stored) return JSON.parse(stored);
+          return this.generate2026();
+        },
+
+        save(data) {
+          data.sort((a, b) => a.date.localeCompare(b.date));
+          localStorage.setItem(this.KEY, JSON.stringify(data));
+        },
+
+        generate2026() {
+          const data = [];
+          // Ordem atualizada: Jessé -> Júnior -> Jefferson
+          const staff = ["Jessé", "Júnior", "Jefferson"];
+          let staffIdx = 0;
+          let date = new Date(2026, 0, 1);
+
+          while (date.getDay() !== 6) date.setDate(date.getDate() + 1);
+
+          while (date.getFullYear() === 2026) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const d = String(date.getDate()).padStart(2, "0");
+
+            data.push({
+              date: `${y}-${m}-${d}`,
+              name: staff[staffIdx],
+              type: "Normal",
+            });
+
+            date.setDate(date.getDate() + 7);
+            staffIdx = (staffIdx + 1) % staff.length;
+          }
+          return data;
+        },
+      };
+
+      /**
+       * CONTROLLER: Main Logic
+       */
+      const app = (() => {
+        let state = [];
+
+        const els = {
+          grid: document.getElementById("gridContainer"),
+          stats: document.getElementById("statsContainer"),
+          total: document.getElementById("totalShifts"),
+          nextInfo: document.getElementById("nextShiftInfo"),
+          nextDate: document.getElementById("nextShiftDate"),
+          search: document.getElementById("searchInput"),
+          filterM: document.getElementById("monthFilter"),
+          filterP: document.getElementById("personFilter"),
+          modal: document.getElementById("editModal"),
+          menu: document.getElementById("dropdownMenu"),
+        };
+
+        function init() {
+          state = DataService.getInitialData();
+          setupTheme();
+          render();
+
+          document.addEventListener("click", (e) => {
+            // CORREÇÃO: Classe atualizada para .nav-actions (conforme HTML)
+            if (!e.target.closest(".nav-actions")) {
+              els.menu.style.display = "none";
+            }
+          });
+        }
+
+        function setupTheme() {
+          const savedTheme = localStorage.getItem("theme") || "light";
+          document.documentElement.setAttribute("data-theme", savedTheme);
+
+          document
+            .getElementById("themeToggle")
+            .addEventListener("click", () => {
+              const current =
+                document.documentElement.getAttribute("data-theme");
+              const next = current === "light" ? "dark" : "light";
+              document.documentElement.setAttribute("data-theme", next);
+              localStorage.setItem("theme", next);
+            });
+        }
+
+        function toggleMenu() {
+          const display = els.menu.style.display;
+          els.menu.style.display = display === "flex" ? "none" : "flex";
+        }
+
+        function render() {
+          renderGrid();
+          renderStats();
+          renderNextShift();
+        }
+
+        function renderGrid() {
+          const term = els.search.value.toLowerCase();
+          const monthVal = els.filterM.value;
+          const personVal = els.filterP.value;
+
+          const filtered = state
+            .map((item, idx) => ({ ...item, originalIdx: idx }))
+            .filter((item) => {
+              const [y, m, d] = item.date.split("-");
+
+              // Comparação direta com meses de 1 a 12
+              const matchesMonth =
+                monthVal === "all" || parseInt(m) === parseInt(monthVal);
+              const matchesPerson =
+                personVal === "all" || item.name === personVal;
+              const matchesSearch =
+                item.name.toLowerCase().includes(term) ||
+                item.date.includes(term);
+
+              return matchesMonth && matchesPerson && matchesSearch;
+            });
+
+          els.grid.innerHTML = filtered
+            .map((item, i) => {
+              const isToday = Utils.isToday(item.date);
+              const userClass = `user-${Utils.normalize(item.name)}`;
+              const badgeClass = `badge-${item.type.toLowerCase()}`;
+
+              return `
+              <div class="shift-card" style="animation-delay: ${Math.min(
+                i * 0.03,
+                0.5
+              )}s" onclick="app.openModal(${item.originalIdx})">
+                <div class="shift-header">
+                  <span style="color: var(--text-muted)">${Utils.formatShortDate(
+                    item.date
+                  )}</span>
+                  <span class="shift-badge ${
+                    isToday ? "badge-today" : badgeClass
+                  }">
+                    ${isToday ? "Hoje" : item.type}
+                  </span>
+                </div>
+                <div class="shift-body">
+                  <div class="avatar ${userClass}" style="background: var(--u-color)">
+                    ${item.name.charAt(0)}
+                  </div>
+                  <div class="shift-details">
+                    <div class="shift-name">${item.name}</div>
+                    <div class="shift-date">${Utils.formatDateDisplay(
+                      item.date
+                    )}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+            })
+            .join("");
+        }
+
+        function renderStats() {
+          const counts = {};
+          const total = state.length;
+
+          ["Jefferson", "Jessé", "Júnior"].forEach((n) => (counts[n] = 0));
+          state.forEach((i) => (counts[i.name] = (counts[i.name] || 0) + 1));
+
+          els.total.textContent = total;
+
+          els.stats.innerHTML = Object.entries(counts)
+            .map(([name, count]) => {
+              const percent =
+                total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+              const colorVar = `var(--u-color)`;
+              const userClass = `user-${Utils.normalize(name)}`;
+
+              return `
+              <div class="stat-item ${userClass}">
+                <div class="stat-row">
+                  <span>${name}</span>
+                  <strong>${count} <span style="font-size:0.8em; opacity:0.7">(${percent}%)</span></strong>
+                </div>
+                <div class="progress-bg">
+                  <div class="progress-fill" style="width: ${percent}%; background: ${colorVar}"></div>
+                </div>
+              </div>
+            `;
+            })
+            .join("");
+        }
+
+        function renderNextShift() {
+          const today = Utils.getLocalISODate();
+          const next = state.find((i) => i.date >= today);
+
+          if (next) {
+            els.nextInfo.textContent = next.name;
+            els.nextDate.textContent = Utils.formatShortDate(next.date);
+          } else {
+            els.nextInfo.textContent = "Concluído";
+            els.nextDate.textContent = "2026";
+          }
+        }
+
+        /* --- ACTIONS --- */
+
+        function openModal(idx) {
+          const item = state[idx];
+          document.getElementById("editIndex").value = idx;
+          document.getElementById("editDate").value = item.date;
+          document.getElementById("editName").value = item.name;
+          document.getElementById("editType").value = item.type;
+          els.modal.classList.add("active");
+        }
+
+        function closeModal() {
+          els.modal.classList.remove("active");
+        }
+
+        function saveChanges() {
+          const idx = parseInt(document.getElementById("editIndex").value);
+          const newDate = document.getElementById("editDate").value;
+          const newName = document.getElementById("editName").value;
+          const newType = document.getElementById("editType").value;
+
+          if (!newDate) return Utils.showToast("Data inválida", "error");
+
+          const currentItem = state[idx];
+          const oldDate = currentItem.date;
+
+          if (newDate !== oldDate) {
+            const conflictIdx = state.findIndex((i) => i.date === newDate);
+            if (conflictIdx !== -1) {
+              if (
+                !confirm(
+                  `A data ${newDate} já está ocupada por ${state[conflictIdx].name}. Deseja trocar?`
+                )
+              ) {
+                return;
+              }
+              // Swap Logic
+              state[conflictIdx].date = oldDate;
+              Utils.showToast("Troca de plantão realizada!", "warning");
+            }
+          }
+
+          state[idx] = { date: newDate, name: newName, type: newType };
+
+          DataService.save(state);
+          render();
+          closeModal();
+          if (newDate === oldDate)
+            Utils.showToast("Alterações salvas com sucesso!", "success");
+        }
+
+        function backupData() {
+          const dataStr =
+            "data:text/json;charset=utf-8," +
+            encodeURIComponent(JSON.stringify(state));
+          const el = document.createElement("a");
+          el.setAttribute("href", dataStr);
+          el.setAttribute("download", "backup_escala_2026.json");
+          document.body.appendChild(el);
+          el.click();
+          el.remove();
+        }
+
+        function importBackup(input) {
+          const file = input.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              const json = JSON.parse(e.target.result);
+              // VALIDAÇÃO BÁSICA
+              if (
+                Array.isArray(json) &&
+                json.length > 0 &&
+                json[0].date &&
+                json[0].name
+              ) {
+                state = json;
+                DataService.save(state);
+                render();
+                Utils.showToast("Backup restaurado com sucesso!", "success");
+              } else {
+                Utils.showToast("Arquivo de backup inválido.", "error");
+              }
+            } catch (err) {
+              Utils.showToast("Erro ao ler arquivo JSON.", "error");
+            }
+          };
+          reader.readAsText(file);
+          input.value = "";
+        }
+
+        function exportCSV() {
+          let csvContent = "data:text/csv;charset=utf-8,Data,Nome,Tipo\n";
+          state.forEach((row) => {
+            csvContent += `${row.date},${row.name},${row.type}\n`;
+          });
+          const encodedUri = encodeURI(csvContent);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", "escala_2026.csv");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+
+        function resetData() {
+          if (
+            confirm(
+              "ATENÇÃO: Isso apagará todas as edições manuais e restaurará a escala original. Continuar?"
+            )
+          ) {
+            state = DataService.generate2026();
+            DataService.save(state);
+            render();
+            Utils.showToast("Escala resetada para o padrão.", "success");
+          }
+        }
+
+        return {
+          init,
+          filter: render,
+          openModal,
+          closeModal,
+          saveChanges,
+          backupData,
+          importBackup,
+          exportCSV,
+          resetData,
+          toggleMenu,
+        };
+      })();
+
+      document.addEventListener("DOMContentLoaded", app.init);
+    </script>
+  </body>
+</html>
