@@ -208,8 +208,15 @@
       }
 
       .stat-item {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
       }
+      .stat-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
       .stat-row {
         display: flex;
         justify-content: space-between;
@@ -217,6 +224,16 @@
         font-size: 0.9rem;
         font-weight: 500;
       }
+
+      .stat-value {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--success);
+        font-weight: 600;
+        margin-top: 4px;
+      }
+
       .progress-bg {
         height: 8px;
         background: var(--bg-hover);
@@ -934,6 +951,12 @@
             month: "short",
           }).format(date);
         },
+        formatMoney: (val) => {
+          return new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(val);
+        },
         normalize: (str) =>
           str
             .normalize("NFD")
@@ -968,7 +991,7 @@
        * SERVICE: Data & Storage Management
        */
       const DataService = {
-        KEY: "escala_ent_2026_v4", // Atualizado para v4 para limpar dados antigos com "Extra"
+        KEY: "escala_ent_2026_v6", // Atualizado para v6
 
         getInitialData() {
           const stored = localStorage.getItem(this.KEY);
@@ -1013,6 +1036,18 @@
        */
       const app = (() => {
         let state = [];
+
+        // CONFIGURAÇÃO DE SALÁRIOS E CÁLCULO
+        // Regra: Salário / 220 (divisor mensal) * Multiplicador * 9 horas de plantão
+        const CONFIG = {
+          hoursPerShift: 9, // Atualizado para 9 horas
+          divisor: 220,
+          salaries: {
+            Jefferson: 6012.17,
+            Jessé: 4500.17,
+            Júnior: 4500.17,
+          },
+        };
 
         const els = {
           grid: document.getElementById("gridContainer"),
@@ -1061,8 +1096,10 @@
 
         function render() {
           renderGrid();
-          renderStats();
           renderNextShift();
+          // renderStats é chamado dentro do renderGrid para usar os dados filtrados?
+          // Não, vamos separar para ter a opção de estatística global ou filtrada.
+          // Aqui usaremos os dados FILTRADOS para calcular o valor
         }
 
         function renderGrid() {
@@ -1086,6 +1123,9 @@
 
               return matchesMonth && matchesPerson && matchesSearch;
             });
+
+          // Atualiza estatísticas com base no filtro atual
+          renderStats(filtered);
 
           els.grid.innerHTML = filtered
             .map((item, i) => {
@@ -1125,12 +1165,35 @@
             .join("");
         }
 
-        function renderStats() {
+        function renderStats(dataToAnalyze) {
           const counts = {};
-          const total = state.length;
+          const values = {};
 
-          ["Jefferson", "Jessé", "Júnior"].forEach((n) => (counts[n] = 0));
-          state.forEach((i) => (counts[i.name] = (counts[i.name] || 0) + 1));
+          ["Jefferson", "Jessé", "Júnior"].forEach((n) => {
+            counts[n] = 0;
+            values[n] = 0;
+          });
+
+          const total = dataToAnalyze.length;
+
+          dataToAnalyze.forEach((item) => {
+            counts[item.name] = (counts[item.name] || 0) + 1;
+
+            // Lógica de Cálculo de Hora Extra
+            const salary = CONFIG.salaries[item.name] || 0;
+            const hourlyRate = salary / CONFIG.divisor;
+
+            let multiplier = 0;
+            if (item.type.includes("50%")) {
+              multiplier = 1.5; // Hora normal + 50%
+            } else if (item.type.includes("100%")) {
+              multiplier = 2.0; // Hora normal + 100%
+            }
+            // Folga = 0
+
+            const shiftValue = hourlyRate * multiplier * CONFIG.hoursPerShift;
+            values[item.name] += shiftValue;
+          });
 
           els.total.textContent = total;
 
@@ -1140,6 +1203,7 @@
                 total > 0 ? ((count / total) * 100).toFixed(1) : 0;
               const colorVar = `var(--u-color)`;
               const userClass = `user-${Utils.normalize(name)}`;
+              const money = values[name] || 0;
 
               return `
               <div class="stat-item ${userClass}">
@@ -1149,6 +1213,10 @@
                 </div>
                 <div class="progress-bg">
                   <div class="progress-fill" style="width: ${percent}%; background: ${colorVar}"></div>
+                </div>
+                <div class="stat-value">
+                  <span>Valor Estimado:</span>
+                  <span>${Utils.formatMoney(money)}</span>
                 </div>
               </div>
             `;
