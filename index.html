@@ -347,21 +347,32 @@
         border-radius: 99px;
         text-transform: uppercase;
         font-weight: 700;
+        white-space: nowrap;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
+
+      /* NOVOS BADGES */
+      .badge-50 {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+      } /* Azul */
+      .badge-100 {
+        background: #ffedd5;
+        color: #9a3412;
+        border: 1px solid #fed7aa;
+      } /* Laranja */
+      .badge-folga {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      } /* Verde */
       .badge-normal {
         background: var(--bg-body);
         color: var(--text-muted);
         border: 1px solid var(--border);
-      }
-      .badge-feriado {
-        background: #fee2e2;
-        color: #b91c1c;
-        border: 1px solid #fecaca;
-      }
-      .badge-extra {
-        background: #fef3c7;
-        color: #b45309;
-        border: 1px solid #fde68a;
       }
       .badge-today {
         background: var(--primary-light);
@@ -877,12 +888,15 @@
                 font-weight: 500;
                 font-size: 0.9rem;
               "
-              >Tipo</label
+              >Tipo de Escala</label
             >
             <select id="editType" class="select-input" style="width: 100%">
-              <option value="Normal">Normal</option>
-              <option value="Feriado">Feriado</option>
-              <option value="Extra">Extra</option>
+              <option value="Sábado (50%)">Sábado (50%)</option>
+              <option value="Domingo (100%)">Domingo (100%)</option>
+              <option value="Feriado (100%)">Feriado (100%)</option>
+              <option value="Ponto Facultativo (Folga)">
+                Ponto Facultativo (Folga)
+              </option>
             </select>
           </div>
         </div>
@@ -935,6 +949,12 @@
           const todayStr = Utils.getLocalISODate();
           return dateStr === todayStr;
         },
+        getBadgeClass: (type) => {
+          if (type.includes("50%")) return "badge-50";
+          if (type.includes("100%")) return "badge-100";
+          if (type.includes("Folga")) return "badge-folga";
+          return "badge-normal";
+        },
         showToast: (msg, type = "success") => {
           const toast = document.createElement("div");
           toast.className = `toast toast-${type}`;
@@ -948,7 +968,7 @@
        * SERVICE: Data & Storage Management
        */
       const DataService = {
-        KEY: "escala_ent_2026_v2",
+        KEY: "escala_ent_2026_v4", // Atualizado para v4 para limpar dados antigos com "Extra"
 
         getInitialData() {
           const stored = localStorage.getItem(this.KEY);
@@ -978,7 +998,7 @@
             data.push({
               date: `${y}-${m}-${d}`,
               name: staff[staffIdx],
-              type: "Normal",
+              type: "Sábado (50%)", // Padrão Sábado
             });
 
             date.setDate(date.getDate() + 7);
@@ -1013,7 +1033,6 @@
           render();
 
           document.addEventListener("click", (e) => {
-            // CORREÇÃO: Classe atualizada para .nav-actions (conforme HTML)
             if (!e.target.closest(".nav-actions")) {
               els.menu.style.display = "none";
             }
@@ -1072,7 +1091,7 @@
             .map((item, i) => {
               const isToday = Utils.isToday(item.date);
               const userClass = `user-${Utils.normalize(item.name)}`;
-              const badgeClass = `badge-${item.type.toLowerCase()}`;
+              const badgeClass = Utils.getBadgeClass(item.type);
 
               return `
               <div class="shift-card" style="animation-delay: ${Math.min(
@@ -1157,7 +1176,8 @@
           document.getElementById("editIndex").value = idx;
           document.getElementById("editDate").value = item.date;
           document.getElementById("editName").value = item.name;
-          document.getElementById("editType").value = item.type;
+          document.getElementById("editType").value =
+            item.type || "Sábado (50%)";
           els.modal.classList.add("active");
         }
 
