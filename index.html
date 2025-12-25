@@ -915,7 +915,9 @@
             </div>
           </div>
 
+          <!-- CARTÃO ATUALIZADO COM ID PARA MUDANÇA DE COR -->
           <div
+            id="nextShiftCard"
             class="card"
             style="
               background: linear-gradient(
@@ -925,6 +927,7 @@
               );
               color: white;
               border: none;
+              transition: background 0.5s ease;
             "
           >
             <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px">
@@ -1241,6 +1244,7 @@
           total: document.getElementById("totalShifts"),
           nextInfo: document.getElementById("nextShiftInfo"),
           nextDate: document.getElementById("nextShiftDate"),
+          nextCard: document.getElementById("nextShiftCard"), // Referência ao cartão
           search: document.getElementById("searchInput"),
           filterM: document.getElementById("monthFilter"),
           filterP: document.getElementById("personFilter"),
@@ -1450,9 +1454,26 @@
           if (next) {
             els.nextInfo.textContent = next.name;
             els.nextDate.textContent = Utils.formatShortDate(next.date);
+
+            // Mudar cor do cartão automaticamente com base no funcionário
+            const nameNorm = Utils.normalize(next.name);
+            let gradient =
+              "linear-gradient(135deg, var(--primary), var(--primary-dark))"; // Default Blue (Jefferson)
+
+            if (nameNorm === "jesse") {
+              gradient = "linear-gradient(135deg, #f59e0b, #b45309)"; // Orange
+            } else if (nameNorm === "junior") {
+              gradient = "linear-gradient(135deg, #10b981, #047857)"; // Green
+            } else {
+              gradient = "linear-gradient(135deg, #3b82f6, #1d4ed8)"; // Blue
+            }
+
+            els.nextCard.style.background = gradient;
           } else {
             els.nextInfo.textContent = "Concluído";
             els.nextDate.textContent = "2026";
+            els.nextCard.style.background =
+              "linear-gradient(135deg, #64748b, #0f172a)"; // Grey
           }
         }
 
