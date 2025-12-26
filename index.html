@@ -310,7 +310,6 @@
       }
 
       .search-box {
-        /* Mantendo compatibilidade com código antigo se necessário, mas usando input-wrapper agora */
         position: relative;
         flex: 1;
         min-width: 200px;
@@ -915,7 +914,6 @@
             </div>
           </div>
 
-          <!-- CARTÃO ATUALIZADO COM ID PARA MUDANÇA DE COR -->
           <div
             id="nextShiftCard"
             class="card"
@@ -1176,10 +1174,11 @@
       };
 
       /**
-       * SERVICE: Data & Storage Management
+       * SERVICE: Data & Storage Management (Versão LocalStorage)
+       * NOTA: Para usar com o servidor MySQL, substitua este objeto pelo conteúdo de api-adapter.js
        */
       const DataService = {
-        KEY: "escala_ent_2026_v6", // Atualizado para v6
+        KEY: "escala_ent_2026_v7", // Versão Atualizada
 
         getInitialData() {
           const stored = localStorage.getItem(this.KEY);
@@ -1244,7 +1243,7 @@
           total: document.getElementById("totalShifts"),
           nextInfo: document.getElementById("nextShiftInfo"),
           nextDate: document.getElementById("nextShiftDate"),
-          nextCard: document.getElementById("nextShiftCard"), // Referência ao cartão
+          nextCard: document.getElementById("nextShiftCard"),
           search: document.getElementById("searchInput"),
           filterM: document.getElementById("monthFilter"),
           filterP: document.getElementById("personFilter"),
@@ -1305,6 +1304,7 @@
           els.menu.style.display = display === "flex" ? "none" : "flex";
         }
 
+        // Função Home (Reset de Filtros)
         function resetFilters() {
           els.search.value = "";
           els.filterM.value = "all";
@@ -1315,9 +1315,6 @@
         function render() {
           renderGrid();
           renderNextShift();
-          // renderStats é chamado dentro do renderGrid para usar os dados filtrados?
-          // Não, vamos separar para ter a opção de estatística global ou filtrada.
-          // Aqui usaremos os dados FILTRADOS para calcular o valor
         }
 
         function renderGrid() {
@@ -1455,7 +1452,7 @@
             els.nextInfo.textContent = next.name;
             els.nextDate.textContent = Utils.formatShortDate(next.date);
 
-            // Mudar cor do cartão automaticamente com base no funcionário
+            // Mudar cor do cartão automaticamente
             const nameNorm = Utils.normalize(next.name);
             let gradient =
               "linear-gradient(135deg, var(--primary), var(--primary-dark))"; // Default Blue (Jefferson)
