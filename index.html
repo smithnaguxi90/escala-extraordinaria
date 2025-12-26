@@ -1211,10 +1211,37 @@
       </div>
     </div>
 
-    <script>
-      /**
-       * UTILS: Date & Helper Functions
-       */
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        setDoc,
+        doc,
+        query,
+        orderBy,
+        deleteDoc,
+        getDoc,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // --- COLE SUA CONFIGURAÇÃO DO FIREBASE AQUI ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyDsyKD3JwVHfMqLNyfEBo1D35Eu9g8W60Y",
+        authDomain: "escala-extraordinaria.firebaseapp.com",
+        projectId: "escala-extraordinaria",
+        storageBucket: "escala-extraordinaria.firebasestorage.app",
+        messagingSenderId: "638653020070",
+        appId: "1:638653020070:web:9956783bf5e8a984210167",
+      };
+
+      // Inicializar Firebase
+      const fbApp = initializeApp(firebaseConfig);
+      const db = getFirestore(fbApp);
+
+      // --- UTILS ---
       const Utils = {
         formatDateDisplay: (dateStr) => {
           const [y, m, d] = dateStr.split("-");
@@ -1244,7 +1271,6 @@
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase(),
-        // CORREÇÃO: Usa timezone local para garantir que 'Hoje' esteja correto
         getLocalISODate: () => {
           const d = new Date();
           const offset = d.getTimezoneOffset() * 60000;
@@ -1269,80 +1295,104 @@
         },
       };
 
-      /**
-       * SERVICE: Data & Storage Management (Versão API)
-       */
-      const DataService = {
-        // CONFIGURAÇÃO: URL Base do Servidor
-        API_URL: "http://localhost:3000",
+      // --- DATA SERVICE (FIREBASE) ---
+      const FirebaseDataService = {
+        config: null, // To store fetched config
 
-        // Carrega dados do servidor
-        async getInitialData() {
+        async getFinancialConfig() {
           try {
-            const response = await fetch(`${this.API_URL}/api/escala`);
+            // Busca configurações da coleção 'configuracoes', documento 'calculo_horas'
+            const docRef = doc(db, "configuracoes", "calculo_horas");
+            const docSnap = await getDoc(docRef);
 
-            if (!response.ok) throw new Error("Falha na rede");
+            // Configuração Padrão (SEM VALORES SENSÍVEIS)
+            // Os valores reais devem estar apenas no banco de dados
+            const defaultConfig = {
+              divisor: 220,
+              horas_plantao: 9,
+              salarios: {
+                Jefferson: 0,
+                Jessé: 0,
+                Júnior: 0,
+              },
+              multiplicadores: {
+                "Sábado (50%)": 1.5,
+                "Domingo (100%)": 2.0,
+                "Feriado (100%)": 2.0,
+                "Ponto Facultativo (Folga)": 0,
+              },
+            };
 
-            const data = await response.json();
-
-            // Se a base de dados estiver vazia, gera localmente e envia para o servidor
-            if (data.length === 0) {
-              const newData = this.generate2026();
-              await this.resetDataOnServer(newData);
-              return newData;
+            if (docSnap.exists()) {
+              // Usa os dados do banco (onde estão os salários reais)
+              return { ...defaultConfig, ...docSnap.data() };
+            } else {
+              console.warn(
+                "Configuração financeira não encontrada no Firebase. Usando padrão seguro (zerado)."
+              );
+              // Não cria automaticamente para não gravar zeros no banco se a conexão falhar
+              return defaultConfig;
             }
-
-            // Normalizar formato de data
-            return data.map((item) => ({
-              ...item,
-              date: item.data.split("T")[0],
-              name: item.nome,
-              type: item.tipo,
-            }));
-          } catch (error) {
-            console.error("Erro ao conectar na API:", error);
-            Utils.showToast("Erro ao conectar no servidor.", "error");
-            return this.generate2026();
-          }
-        },
-
-        // Salva alterações
-        async save(fullDataList) {
-          const dbPayload = fullDataList.map((item) => ({
-            data: item.date,
-            nome: item.name,
-            tipo: item.type,
-          }));
-
-          try {
-            const response = await fetch(`${this.API_URL}/api/escala/reset`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(dbPayload),
-            });
-            if (!response.ok) throw new Error("Erro ao salvar");
           } catch (e) {
-            console.error("Erro ao salvar:", e);
-            Utils.showToast("Erro ao salvar no banco de dados.", "error");
+            console.error("Erro ao buscar config financeira:", e);
+            // Fallback seguro em caso de erro
+            return {
+              divisor: 220,
+              horas_plantao: 9,
+              salarios: {},
+              multiplicadores: {},
+            };
           }
         },
 
-        // Função auxiliar para enviar tudo (usada na inicialização)
-        async resetDataOnServer(data) {
-          const dbPayload = data.map((item) => ({
-            data: item.date,
-            nome: item.name,
-            tipo: item.type,
-          }));
+        subscribeToData(callback) {
+          const q = query(collection(db, "plantoes"));
+          return onSnapshot(
+            q,
+            (querySnapshot) => {
+              if (querySnapshot.empty) {
+                const newData = this.generate2026();
+                this.save(newData);
+                return;
+              }
 
-          return fetch(`${this.API_URL}/api/escala/reset`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dbPayload),
-          });
+              const data = [];
+              querySnapshot.forEach((doc) => {
+                data.push(doc.data());
+              });
+
+              const sortedData = data.sort((a, b) =>
+                a.date.localeCompare(b.date)
+              );
+              callback(sortedData);
+            },
+            (error) => {
+              console.error("Erro no listener:", error);
+              Utils.showToast("Erro de conexão em tempo real.", "error");
+            }
+          );
         },
 
-        // Gera a escala base (igual ao original)
+        async save(fullDataList) {
+          try {
+            const promises = fullDataList.map((item) => {
+              return setDoc(doc(db, "plantoes", item.date), item);
+            });
+            await Promise.all(promises);
+          } catch (e) {
+            console.error("Erro ao salvar no Firebase:", e);
+            Utils.showToast("Erro ao salvar no banco.", "error");
+          }
+        },
+
+        async delete(dateStr) {
+          try {
+            await deleteDoc(doc(db, "plantoes", dateStr));
+          } catch (e) {
+            console.error("Erro ao deletar documento antigo:", e);
+          }
+        },
+
         generate2026() {
           const data = [];
           const staff = ["Jessé", "Júnior", "Jefferson"];
@@ -1369,24 +1419,10 @@
         },
       };
 
-      /**
-       * CONTROLLER: Main Logic
-       */
-      const app = (() => {
+      // --- APP CONTROLLER ---
+      const App = (() => {
         let state = [];
-        let showValues = false; // Estado padrão: valores ocultos
-
-        // CONFIGURAÇÃO DE SALÁRIOS E CÁLCULO
-        // Regra: Salário / 220 (divisor mensal) * Multiplicador * 9 horas de plantão
-        const CONFIG = {
-          hoursPerShift: 9, // Atualizado para 9 horas
-          divisor: 220,
-          salaries: {
-            Jefferson: 6012.17,
-            Jessé: 4500.17,
-            Júnior: 4500.17,
-          },
-        };
+        let showValues = false;
 
         const els = {
           grid: document.getElementById("gridContainer"),
@@ -1404,11 +1440,18 @@
         };
 
         function init() {
-          DataService.getInitialData().then((data) => {
-            state = data;
-            setupTheme();
-            setupScrollToTop();
-            render();
+          FirebaseDataService.getFinancialConfig().then((config) => {
+            FirebaseDataService.config = config;
+
+            FirebaseDataService.subscribeToData((data) => {
+              state = data;
+              if (!document.body.hasAttribute("data-ready")) {
+                setupTheme();
+                setupScrollToTop();
+                document.body.setAttribute("data-ready", "true");
+              }
+              render();
+            });
           });
 
           document.addEventListener("click", (e) => {
@@ -1421,7 +1464,6 @@
         function setupTheme() {
           const savedTheme = localStorage.getItem("theme") || "light";
           document.documentElement.setAttribute("data-theme", savedTheme);
-
           document
             .getElementById("themeToggle")
             .addEventListener("click", () => {
@@ -1436,11 +1478,8 @@
         function setupScrollToTop() {
           const btn = document.getElementById("btnBackToTop");
           window.addEventListener("scroll", () => {
-            if (window.scrollY > 300) {
-              btn.classList.add("visible");
-            } else {
-              btn.classList.remove("visible");
-            }
+            if (window.scrollY > 300) btn.classList.add("visible");
+            else btn.classList.remove("visible");
           });
         }
 
@@ -1471,7 +1510,6 @@
           render();
         }
 
-        // --- GERAÇÃO DE PDF (COMUM) ---
         function createPDFDoc() {
           if (!window.jspdf) {
             Utils.showToast("Erro: Biblioteca PDF não carregada.", "error");
@@ -1479,6 +1517,8 @@
           }
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
+
+          // Removido cabeçalho de valor, conforme solicitado anteriormente
           const headers = [["Data", "Dia", "Colaborador", "Tipo"]];
           const dataToExport = [...state].sort((a, b) =>
             a.date.localeCompare(b.date)
@@ -1591,14 +1631,34 @@
 
           const total = dataToAnalyze.length;
 
+          // Uso da configuração carregada do Firebase (com chaves em PT-BR)
+          const config = FirebaseDataService.config || {
+            horas_plantao: 0,
+            divisor: 1,
+            salarios: {},
+            multiplicadores: {},
+          };
+
           dataToAnalyze.forEach((item) => {
             counts[item.name] = (counts[item.name] || 0) + 1;
-            const salary = CONFIG.salaries[item.name] || 0;
-            const hourlyRate = salary / CONFIG.divisor;
-            let multiplier = 0;
-            if (item.type.includes("50%")) multiplier = 1.5;
-            else if (item.type.includes("100%")) multiplier = 2.0;
-            const shiftValue = hourlyRate * multiplier * CONFIG.hoursPerShift;
+
+            // Dados seguros do Firebase usando Optional Chaining e Fallbacks
+            const salary = config.salarios?.[item.name] || 0;
+            const hourlyRate = salary / (config.divisor || 1);
+
+            // Busca o multiplicador dinamicamente
+            let multiplier = config.multiplicadores?.[item.type];
+
+            // Fallback para tipos não mapeados ou erros
+            if (multiplier === undefined) {
+              if (item.type.includes("50%")) multiplier = 1.5;
+              else if (item.type.includes("100%")) multiplier = 2.0;
+              else multiplier = 0;
+            }
+
+            // Nota: agora usamos horas_plantao em vez de hoursPerShift
+            const shiftValue =
+              hourlyRate * multiplier * (config.horas_plantao || 0);
             values[item.name] += shiftValue;
           });
 
@@ -1685,9 +1745,12 @@
           const currentItem = state[idx];
           const oldDate = currentItem.date;
 
+          // CONFLITOS E MUDANÇAS DE DATA
           if (newDate !== oldDate) {
             const conflictIdx = state.findIndex((i) => i.date === newDate);
+
             if (conflictIdx !== -1) {
+              // CASO 1: CONFLITO (Troca)
               if (
                 !confirm(
                   `A data ${newDate} já está ocupada por ${state[conflictIdx].name}. Deseja trocar?`
@@ -1696,12 +1759,19 @@
                 return;
               }
               state[conflictIdx].date = oldDate;
+              // Salva a troca do outro funcionário para a data antiga
+              FirebaseDataService.save([state[conflictIdx]]);
               Utils.showToast("Troca de plantão realizada!", "warning");
+            } else {
+              // CASO 2: SEM CONFLITO (Mudança para data vazia)
+              // Importante: Devemos apagar o documento da data antiga para não duplicar
+              FirebaseDataService.delete(oldDate);
             }
           }
 
           state[idx] = { date: newDate, name: newName, type: newType };
-          DataService.save(state);
+          FirebaseDataService.save([state[idx]]); // Salva o item atual na nova data
+
           render();
           closeModal();
           if (newDate === oldDate)
@@ -1734,7 +1804,7 @@
                 json[0].name
               ) {
                 state = json;
-                DataService.save(state);
+                FirebaseDataService.save(state); // Salva tudo no Firebase
                 render();
                 Utils.showToast("Backup restaurado com sucesso!", "success");
               } else {
@@ -1768,9 +1838,9 @@
               "ATENÇÃO: Isso apagará todas as edições manuais e restaurará a escala original. Continuar?"
             )
           ) {
-            const defaultData = DataService.generate2026();
+            const defaultData = FirebaseDataService.generate2026();
             state = defaultData;
-            DataService.save(state);
+            FirebaseDataService.save(state);
             render();
             Utils.showToast("Escala resetada para o padrão.", "success");
           }
@@ -1793,7 +1863,9 @@
         };
       })();
 
-      document.addEventListener("DOMContentLoaded", app.init);
+      // Torna global para o onclick funcionar no HTML
+      window.app = App;
+      document.addEventListener("DOMContentLoaded", App.init);
     </script>
   </body>
 </html>
