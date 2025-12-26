@@ -14,6 +14,10 @@
       rel="stylesheet"
     />
 
+    <!-- PDF Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <!-- Favicon -->
     <link
       rel="icon"
@@ -68,6 +72,7 @@
         color: var(--text-main);
         margin: 0;
         line-height: 1.6;
+        scroll-behavior: smooth;
         transition: background-color 0.3s, color 0.3s;
       }
 
@@ -92,7 +97,7 @@
         top: 0;
         z-index: 50;
         backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px); /* Safari support */
+        -webkit-backdrop-filter: blur(8px);
       }
 
       .brand {
@@ -179,6 +184,39 @@
       .btn-icon:hover {
         background: var(--bg-hover);
         color: var(--text-main);
+      }
+
+      /* --- BACK TO TOP BUTTON --- */
+      .btn-back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 90;
+      }
+      .btn-back-to-top.visible {
+        opacity: 1;
+        pointer-events: all;
+        transform: translateY(0);
+      }
+      .btn-back-to-top:hover {
+        background: var(--primary-dark);
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
       }
 
       /* --- DASHBOARD --- */
@@ -587,6 +625,10 @@
         .filters select {
           flex: 1;
         }
+        .btn-back-to-top {
+          bottom: 20px;
+          right: 20px;
+        }
       }
 
       @media print {
@@ -599,7 +641,8 @@
         .btn,
         .modal-backdrop,
         .toast,
-        .btn-icon {
+        .btn-icon,
+        .btn-back-to-top {
           display: none !important;
         }
         .dashboard {
@@ -661,7 +704,7 @@
             </svg>
           </div>
           <div class="brand-info">
-            <h1>Escala Extraordinária - 2026</h1>
+            <h1>Escala 2026</h1>
           </div>
         </div>
         <div class="nav-actions">
@@ -756,6 +799,36 @@
                   justify-content: flex-start;
                   border-radius: 0;
                 "
+                onclick="app.exportPDF(); app.toggleMenu()"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  ></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                  <text x="8" y="19" font-size="6" fill="currentColor">
+                    PDF
+                  </text>
+                </svg>
+                Exportar PDF
+              </button>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                "
                 onclick="app.backupData(); app.toggleMenu()"
               >
                 <svg
@@ -820,7 +893,7 @@
                   ></path>
                   <rect x="6" y="14" width="12" height="8"></rect>
                 </svg>
-                Imprimir
+                Imprimir Página
               </button>
               <div
                 style="border-top: 1px solid var(--border); margin: 4px 0"
@@ -1031,6 +1104,29 @@
       </main>
     </div>
 
+    <!-- BACK TO TOP BUTTON -->
+    <button
+      id="btnBackToTop"
+      class="btn-back-to-top"
+      aria-label="Voltar ao topo"
+      onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    >
+      <svg
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M5 15l7-7 7 7"
+        ></path>
+      </svg>
+    </button>
+
     <!-- EDIT MODAL -->
     <div class="modal-backdrop" id="editModal">
       <div class="modal-content">
@@ -1174,26 +1270,81 @@
       };
 
       /**
-       * SERVICE: Data & Storage Management (Versão LocalStorage)
-       * NOTA: Para usar com o servidor MySQL, substitua este objeto pelo conteúdo de api-adapter.js
+       * SERVICE: Data & Storage Management (Versão API)
        */
       const DataService = {
-        KEY: "escala_ent_2026_v7", // Versão Atualizada
+        // CONFIGURAÇÃO: URL Base do Servidor
+        API_URL: "http://localhost:3000",
 
-        getInitialData() {
-          const stored = localStorage.getItem(this.KEY);
-          if (stored) return JSON.parse(stored);
-          return this.generate2026();
+        // Carrega dados do servidor
+        async getInitialData() {
+          try {
+            const response = await fetch(`${this.API_URL}/api/escala`);
+
+            if (!response.ok) throw new Error("Falha na rede");
+
+            const data = await response.json();
+
+            // Se a base de dados estiver vazia, gera localmente e envia para o servidor
+            if (data.length === 0) {
+              const newData = this.generate2026();
+              await this.resetDataOnServer(newData);
+              return newData;
+            }
+
+            // Normalizar formato de data
+            return data.map((item) => ({
+              ...item,
+              date: item.data.split("T")[0],
+              name: item.nome,
+              type: item.tipo,
+            }));
+          } catch (error) {
+            console.error("Erro ao conectar na API:", error);
+            Utils.showToast("Erro ao conectar no servidor.", "error");
+            return this.generate2026();
+          }
         },
 
-        save(data) {
-          data.sort((a, b) => a.date.localeCompare(b.date));
-          localStorage.setItem(this.KEY, JSON.stringify(data));
+        // Salva alterações
+        async save(fullDataList) {
+          const dbPayload = fullDataList.map((item) => ({
+            data: item.date,
+            nome: item.name,
+            tipo: item.type,
+          }));
+
+          try {
+            const response = await fetch(`${this.API_URL}/api/escala/reset`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(dbPayload),
+            });
+            if (!response.ok) throw new Error("Erro ao salvar");
+          } catch (e) {
+            console.error("Erro ao salvar:", e);
+            Utils.showToast("Erro ao salvar no banco de dados.", "error");
+          }
         },
 
+        // Função auxiliar para enviar tudo (usada na inicialização)
+        async resetDataOnServer(data) {
+          const dbPayload = data.map((item) => ({
+            data: item.date,
+            nome: item.name,
+            tipo: item.type,
+          }));
+
+          return fetch(`${this.API_URL}/api/escala/reset`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dbPayload),
+          });
+        },
+
+        // Gera a escala base (igual ao original)
         generate2026() {
           const data = [];
-          // Ordem atualizada: Jessé -> Júnior -> Jefferson
           const staff = ["Jessé", "Júnior", "Jefferson"];
           let staffIdx = 0;
           let date = new Date(2026, 0, 1);
@@ -1208,7 +1359,7 @@
             data.push({
               date: `${y}-${m}-${d}`,
               name: staff[staffIdx],
-              type: "Sábado (50%)", // Padrão Sábado
+              type: "Sábado (50%)",
             });
 
             date.setDate(date.getDate() + 7);
@@ -1253,9 +1404,12 @@
         };
 
         function init() {
-          state = DataService.getInitialData();
-          setupTheme();
-          render();
+          DataService.getInitialData().then((data) => {
+            state = data;
+            setupTheme();
+            setupScrollToTop();
+            render();
+          });
 
           document.addEventListener("click", (e) => {
             if (!e.target.closest(".nav-actions")) {
@@ -1279,24 +1433,30 @@
             });
         }
 
+        function setupScrollToTop() {
+          const btn = document.getElementById("btnBackToTop");
+          window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) {
+              btn.classList.add("visible");
+            } else {
+              btn.classList.remove("visible");
+            }
+          });
+        }
+
         function toggleValues() {
           showValues = !showValues;
-
-          // Atualizar ícone
           const btn = document.getElementById("btnToggleValues");
           if (showValues) {
-            // Olho cortado (Ocultar)
             btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
             btn.title = "Ocultar valores estimados";
             btn.style.color = "var(--primary)";
           } else {
-            // Olho normal (Mostrar)
             btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
             btn.title = "Ver valores estimados";
             btn.style.color = "var(--text-muted)";
           }
-
-          render(); // Re-renderizar para atualizar as estatísticas
+          render();
         }
 
         function toggleMenu() {
@@ -1304,12 +1464,57 @@
           els.menu.style.display = display === "flex" ? "none" : "flex";
         }
 
-        // Função Home (Reset de Filtros)
         function resetFilters() {
           els.search.value = "";
           els.filterM.value = "all";
           els.filterP.value = "all";
           render();
+        }
+
+        // --- GERAÇÃO DE PDF (COMUM) ---
+        function createPDFDoc() {
+          if (!window.jspdf) {
+            Utils.showToast("Erro: Biblioteca PDF não carregada.", "error");
+            return null;
+          }
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          const headers = [["Data", "Dia", "Colaborador", "Tipo"]];
+          const dataToExport = [...state].sort((a, b) =>
+            a.date.localeCompare(b.date)
+          );
+
+          const rows = dataToExport.map((item) => {
+            const [y, m, d] = item.date.split("-");
+            const dateObj = new Date(y, m - 1, d);
+            const dateFmt = `${d}/${m}/${y}`;
+            const weekDay = new Intl.DateTimeFormat("pt-BR", {
+              weekday: "long",
+            }).format(dateObj);
+            const weekDayCap =
+              weekDay.charAt(0).toUpperCase() + weekDay.slice(1);
+            return [dateFmt, weekDayCap, item.name, item.type];
+          });
+
+          doc.setFontSize(18);
+          doc.text("Escala 2026", 14, 22);
+          doc.setFontSize(11);
+          doc.text("Relatório de Plantões", 14, 30);
+
+          doc.autoTable({
+            startY: 36,
+            head: headers,
+            body: rows,
+            headStyles: { fillColor: [59, 130, 246] },
+            alternateRowStyles: { fillColor: [240, 249, 255] },
+            margin: { top: 30 },
+          });
+          return doc;
+        }
+
+        function exportPDF() {
+          const doc = createPDFDoc();
+          if (doc) doc.save("escala_2026.pdf");
         }
 
         function render() {
@@ -1326,8 +1531,6 @@
             .map((item, idx) => ({ ...item, originalIdx: idx }))
             .filter((item) => {
               const [y, m, d] = item.date.split("-");
-
-              // Comparação direta com meses de 1 a 12
               const matchesMonth =
                 monthVal === "all" || parseInt(m) === parseInt(monthVal);
               const matchesPerson =
@@ -1335,11 +1538,9 @@
               const matchesSearch =
                 item.name.toLowerCase().includes(term) ||
                 item.date.includes(term);
-
               return matchesMonth && matchesPerson && matchesSearch;
             });
 
-          // Atualiza estatísticas com base no filtro atual
           renderStats(filtered);
 
           els.grid.innerHTML = filtered
@@ -1383,7 +1584,6 @@
         function renderStats(dataToAnalyze) {
           const counts = {};
           const values = {};
-
           ["Jefferson", "Jessé", "Júnior"].forEach((n) => {
             counts[n] = 0;
             values[n] = 0;
@@ -1393,19 +1593,11 @@
 
           dataToAnalyze.forEach((item) => {
             counts[item.name] = (counts[item.name] || 0) + 1;
-
-            // Lógica de Cálculo de Hora Extra
             const salary = CONFIG.salaries[item.name] || 0;
             const hourlyRate = salary / CONFIG.divisor;
-
             let multiplier = 0;
-            if (item.type.includes("50%")) {
-              multiplier = 1.5; // Hora normal + 50%
-            } else if (item.type.includes("100%")) {
-              multiplier = 2.0; // Hora normal + 100%
-            }
-            // Folga = 0
-
+            if (item.type.includes("50%")) multiplier = 1.5;
+            else if (item.type.includes("100%")) multiplier = 2.0;
             const shiftValue = hourlyRate * multiplier * CONFIG.hoursPerShift;
             values[item.name] += shiftValue;
           });
@@ -1451,30 +1643,22 @@
           if (next) {
             els.nextInfo.textContent = next.name;
             els.nextDate.textContent = Utils.formatShortDate(next.date);
-
-            // Mudar cor do cartão automaticamente
             const nameNorm = Utils.normalize(next.name);
             let gradient =
-              "linear-gradient(135deg, var(--primary), var(--primary-dark))"; // Default Blue (Jefferson)
-
-            if (nameNorm === "jesse") {
-              gradient = "linear-gradient(135deg, #f59e0b, #b45309)"; // Orange
-            } else if (nameNorm === "junior") {
-              gradient = "linear-gradient(135deg, #10b981, #047857)"; // Green
-            } else {
-              gradient = "linear-gradient(135deg, #3b82f6, #1d4ed8)"; // Blue
-            }
-
+              "linear-gradient(135deg, var(--primary), var(--primary-dark))";
+            if (nameNorm === "jesse")
+              gradient = "linear-gradient(135deg, #f59e0b, #b45309)";
+            else if (nameNorm === "junior")
+              gradient = "linear-gradient(135deg, #10b981, #047857)";
+            else gradient = "linear-gradient(135deg, #3b82f6, #1d4ed8)";
             els.nextCard.style.background = gradient;
           } else {
             els.nextInfo.textContent = "Concluído";
             els.nextDate.textContent = "2026";
             els.nextCard.style.background =
-              "linear-gradient(135deg, #64748b, #0f172a)"; // Grey
+              "linear-gradient(135deg, #64748b, #0f172a)";
           }
         }
-
-        /* --- ACTIONS --- */
 
         function openModal(idx) {
           const item = state[idx];
@@ -1511,14 +1695,12 @@
               ) {
                 return;
               }
-              // Swap Logic
               state[conflictIdx].date = oldDate;
               Utils.showToast("Troca de plantão realizada!", "warning");
             }
           }
 
           state[idx] = { date: newDate, name: newName, type: newType };
-
           DataService.save(state);
           render();
           closeModal();
@@ -1541,12 +1723,10 @@
         function importBackup(input) {
           const file = input.files[0];
           if (!file) return;
-
           const reader = new FileReader();
           reader.onload = function (e) {
             try {
               const json = JSON.parse(e.target.result);
-              // VALIDAÇÃO BÁSICA
               if (
                 Array.isArray(json) &&
                 json.length > 0 &&
@@ -1588,7 +1768,8 @@
               "ATENÇÃO: Isso apagará todas as edições manuais e restaurará a escala original. Continuar?"
             )
           ) {
-            state = DataService.generate2026();
+            const defaultData = DataService.generate2026();
+            state = defaultData;
             DataService.save(state);
             render();
             Utils.showToast("Escala resetada para o padrão.", "success");
@@ -1604,6 +1785,7 @@
           backupData,
           importBackup,
           exportCSV,
+          exportPDF,
           resetData,
           toggleMenu,
           toggleValues,
