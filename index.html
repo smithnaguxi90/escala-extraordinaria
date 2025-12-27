@@ -18,7 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-    <!-- Favicon & Apple Touch Icon (Geridos dinamicamente) -->
+    <!-- Favicon & Apple Touch Icon (Dinâmicos) -->
     <link
       id="faviconLink"
       rel="icon"
@@ -27,7 +27,7 @@
     <link
       id="appleIconLink"
       rel="apple-touch-icon"
-      href="calendar-icon-apple.png"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>"
     />
 
     <style>
@@ -857,7 +857,6 @@
                 </svg>
                 Exportar PDF
               </button>
-              <!-- BOTÃO SALVAR FECHAMENTO -->
               <button
                 class="btn"
                 style="
@@ -892,7 +891,6 @@
                 </svg>
                 Salvar Fechamento
               </button>
-              <!-- NOVO BOTÃO: VER HISTÓRICO -->
               <button
                 class="btn"
                 style="
@@ -1415,7 +1413,7 @@
         },
       };
 
-      // --- ICONS SVG ---
+      // --- ICONS SVG (Mantidos para referência, mas desativados para usar o PNG estático) ---
       const ICONS = {
         light:
           "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>",
@@ -1634,8 +1632,8 @@
 
         // --- ICONS UPDATE ---
         function updateIcons(theme) {
-          const iconHref = theme === "dark" ? ICONS.dark : ICONS.light;
-          document.getElementById("faviconLink").href = iconHref;
+          // const iconHref = theme === 'dark' ? ICONS.dark : ICONS.light;
+          // document.getElementById('faviconLink').href = iconHref; // Desativado para manter o PNG
           // Removido a atualização automática do appleIconLink para manter o PNG estático
         }
 
