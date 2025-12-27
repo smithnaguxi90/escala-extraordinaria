@@ -27,7 +27,7 @@
     <link
       id="appleIconLink"
       rel="apple-touch-icon"
-      href=".assets/calendar-icon-apple.png"
+      href="calendar-icon-apple.png"
     />
 
     <style>
@@ -1415,6 +1415,13 @@
         },
       };
 
+      // --- ICONS SVG ---
+      const ICONS = {
+        light:
+          "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>",
+        dark: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f172a%22/><path stroke=%22%23f8fafc%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>",
+      };
+
       // --- DATA SERVICE (FIREBASE) ---
       const FirebaseDataService = {
         config: null,
@@ -1501,8 +1508,6 @@
         // NOVO: Listener para Fechamentos Mensais
         subscribeToClosings(callback) {
           // Ordenar por ID (que é ano-mês, ex: 2026-01) decrescente para ver os mais recentes primeiro
-          // Nota: No firestore orderBy precisa de índice se for complexo, mas por ID é grátis se usarmos __name__?
-          // Vamos ordenar no cliente para simplificar e evitar criar índice agora.
           const q = query(collection(db, "fechamentos_mensais"));
           return onSnapshot(q, (querySnapshot) => {
             const data = [];
@@ -1627,10 +1632,18 @@
           });
         }
 
-        // ... [Resto das funções de tema, scroll e toggleValues iguais] ...
+        // --- ICONS UPDATE ---
+        function updateIcons(theme) {
+          const iconHref = theme === "dark" ? ICONS.dark : ICONS.light;
+          document.getElementById("faviconLink").href = iconHref;
+          // Removido a atualização automática do appleIconLink para manter o PNG estático
+        }
+
         function setupTheme() {
           const savedTheme = localStorage.getItem("theme") || "light";
           document.documentElement.setAttribute("data-theme", savedTheme);
+          updateIcons(savedTheme); // Initialize icons
+
           document
             .getElementById("themeToggle")
             .addEventListener("click", () => {
@@ -1639,6 +1652,7 @@
               const next = current === "light" ? "dark" : "light";
               document.documentElement.setAttribute("data-theme", next);
               localStorage.setItem("theme", next);
+              updateIcons(next); // Update icons on toggle
             });
         }
 
