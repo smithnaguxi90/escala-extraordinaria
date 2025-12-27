@@ -18,9 +18,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-    <!-- Favicon -->
+    <!-- Favicon & Apple Touch Icon (Geridos dinamicamente) -->
     <link
+      id="faviconLink"
       rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>"
+    />
+    <link
+      id="appleIconLink"
+      rel="apple-touch-icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>"
     />
 
@@ -1722,7 +1728,7 @@
           });
 
           const config = FirebaseDataService.config || {
-            horas_plantao: 0,
+            hoursPerShift: 0,
             divisor: 1,
             salarios: {},
             multiplicadores: {},
