@@ -33,21 +33,22 @@
     <style>
       /* --- VARIÁVEIS CSS (THEMING) --- */
       :root {
-        --primary: #3b82f6;
-        --primary-dark: #2563eb;
+        /* CORES MODO CLARO (Acessibilidade: Contraste Alto) */
+        --primary: #2563eb; /* Azul mais forte para leitura em branco */
+        --primary-dark: #1d4ed8;
         --primary-light: #eff6ff;
 
-        --bg-body: #f8fafc;
+        --bg-body: #f1f5f9; /* Slate 100 - Pouco mais escuro que branco puro para conforto */
         --bg-surface: #ffffff;
-        --bg-hover: #f1f5f9;
+        --bg-hover: #e2e8f0;
 
-        --text-main: #0f172a;
-        --text-muted: #64748b;
-        --border: #e2e8f0;
+        --text-main: #0f172a; /* Slate 900 - Quase preto */
+        --text-muted: #475569; /* Slate 600 - Cinza médio/escuro */
+        --border: #cbd5e1; /* Slate 300 - Bordas mais visíveis */
 
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
+        --success: #16a34a; /* Green 600 - Verde mais escuro para texto */
+        --warning: #d97706; /* Amber 600 - Laranja mais escuro */
+        --danger: #dc2626; /* Red 600 - Vermelho mais escuro */
 
         --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
         --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -56,15 +57,25 @@
       }
 
       [data-theme="dark"] {
-        --bg-body: #0f172a;
-        --bg-surface: #1e293b;
-        --bg-hover: #334155;
-        --text-main: #f8fafc;
-        --text-muted: #94a3b8;
-        --border: #334155;
-        --primary-light: rgba(59, 130, 246, 0.1);
+        /* CORES MODO ESCURO (Acessibilidade: Brilho Suave) */
+        --bg-body: #020617; /* Slate 950 - Fundo bem escuro */
+        --bg-surface: #0f172a; /* Slate 900 - Superfícies */
+        --bg-hover: #1e293b; /* Slate 800 */
+
+        --text-main: #f8fafc; /* Slate 50 - Branco suave */
+        --text-muted: #cbd5e1; /* Slate 300 - Cinza claro */
+        --border: #334155; /* Slate 700 */
+
+        --primary: #60a5fa; /* Blue 400 - Azul mais claro para brilhar no escuro */
+        --primary-dark: #3b82f6;
+        --primary-light: rgba(59, 130, 246, 0.15);
+
+        --success: #4ade80; /* Green 400 - Verde claro */
+        --warning: #fbbf24; /* Amber 400 - Amarelo claro */
+        --danger: #f87171; /* Red 400 - Vermelho claro */
+
         --shadow-sm: none;
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
       }
 
       /* --- RESET & BASE --- */
@@ -127,6 +138,10 @@
         font-weight: 700;
         font-size: 1.2rem;
       }
+      [data-theme="dark"] .brand-icon {
+        color: #0f172a; /* Texto escuro no ícone claro em dark mode */
+      }
+
       .brand-info h1 {
         font-size: 1.25rem;
         font-weight: 700;
@@ -166,6 +181,11 @@
         background: var(--primary);
         color: white;
       }
+      [data-theme="dark"] .btn-primary {
+        color: #0f172a; /* Texto escuro para contraste no botão claro */
+        font-weight: 600;
+      }
+
       .btn-primary:hover {
         background: var(--primary-dark);
         transform: translateY(-1px);
@@ -203,7 +223,7 @@
         background: var(--primary);
         color: white;
         border: none;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -214,6 +234,9 @@
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 90;
       }
+      [data-theme="dark"] .btn-back-to-top {
+        color: #0f172a;
+      }
       .btn-back-to-top.visible {
         opacity: 1;
         pointer-events: all;
@@ -222,7 +245,7 @@
       .btn-back-to-top:hover {
         background: var(--primary-dark);
         transform: translateY(-4px);
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
       }
 
       /* --- DASHBOARD --- */
@@ -250,13 +273,14 @@
 
       .stats-header {
         font-size: 0.875rem;
-        font-weight: 600;
+        font-weight: 700; /* Mais bold para acessibilidade */
         color: var(--text-muted);
         margin-bottom: 1rem;
         text-transform: uppercase;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        letter-spacing: 0.5px;
       }
 
       .stat-item {
@@ -273,14 +297,14 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 6px;
-        font-size: 0.9rem;
+        font-size: 0.95rem; /* Texto levemente maior */
         font-weight: 500;
       }
 
       .stat-value {
         display: flex;
         justify-content: space-between;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: var(--success);
         font-weight: 600;
         margin-top: 4px;
@@ -296,14 +320,14 @@
       }
 
       .progress-bg {
-        height: 8px;
+        height: 10px; /* Barra mais grossa */
         background: var(--bg-hover);
-        border-radius: 4px;
+        border-radius: 6px;
         overflow: hidden;
       }
       .progress-fill {
         height: 100%;
-        border-radius: 4px;
+        border-radius: 6px;
         transition: width 0.6s ease-out;
       }
 
@@ -361,21 +385,22 @@
 
       .search-input {
         width: 100%;
-        padding: 10px 10px 10px 40px; /* Espaço para o ícone */
+        padding: 12px 12px 12px 40px; /* Padding maior para toque */
         border-radius: 8px;
         border: 1px solid var(--border);
         background: var(--bg-body);
         color: var(--text-main);
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
       .search-input:focus {
         border-color: var(--primary);
         background: var(--bg-surface);
+        box-shadow: 0 0 0 2px var(--primary-light);
       }
 
       .select-input {
         width: 100%;
-        padding: 10px 30px 10px 40px; /* Espaço para ícone à esquerda e seta à direita */
+        padding: 12px 30px 12px 40px;
         border-radius: 8px;
         border: 1px solid var(--border);
         background: var(--bg-body)
@@ -385,13 +410,16 @@
         appearance: none;
         color: var(--text-main);
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
 
       /* CALENDAR GRID */
       .calendar-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(280px, 1fr)
+        ); /* Cards um pouco mais largos */
         gap: 20px;
       }
 
@@ -420,18 +448,18 @@
       }
 
       .shift-header {
-        padding: 12px 16px;
+        padding: 14px 18px;
         background: var(--bg-hover);
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
 
       .shift-badge {
-        font-size: 0.7rem;
-        padding: 2px 8px;
+        font-size: 0.75rem;
+        padding: 4px 10px;
         border-radius: 99px;
         text-transform: uppercase;
         font-weight: 700;
@@ -441,22 +469,23 @@
         text-overflow: ellipsis;
       }
 
-      /* NOVOS BADGES */
+      /* NOVOS BADGES (Alto Contraste) */
+      /* Light Mode Defaults */
       .badge-50 {
         background: #dbeafe;
-        color: #1e40af;
+        color: #172554;
         border: 1px solid #bfdbfe;
-      } /* Azul */
+      }
       .badge-100 {
         background: #ffedd5;
-        color: #9a3412;
+        color: #7c2d12;
         border: 1px solid #fed7aa;
-      } /* Laranja */
+      }
       .badge-folga {
         background: #dcfce7;
-        color: #166534;
+        color: #14532d;
         border: 1px solid #bbf7d0;
-      } /* Verde */
+      }
       .badge-normal {
         background: var(--bg-body);
         color: var(--text-muted);
@@ -468,26 +497,49 @@
         border: 1px solid var(--primary);
       }
 
+      /* Dark Mode Overrides for Badges */
+      [data-theme="dark"] .badge-50 {
+        background: #172554;
+        color: #dbeafe;
+        border-color: #1e3a8a;
+      }
+      [data-theme="dark"] .badge-100 {
+        background: #431407;
+        color: #ffedd5;
+        border-color: #7c2d12;
+      }
+      [data-theme="dark"] .badge-folga {
+        background: #052e16;
+        color: #dcfce7;
+        border-color: #14532d;
+      }
+      [data-theme="dark"] .badge-today {
+        background: rgba(96, 165, 250, 0.2);
+        color: #60a5fa;
+        border-color: #60a5fa;
+      }
+
       .shift-body {
-        padding: 20px;
+        padding: 24px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
       }
 
       .avatar {
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
+        font-weight: 700;
         color: white;
-        font-size: 1.25rem;
+        font-size: 1.4rem;
         box-shadow: var(--shadow-sm);
         position: relative;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Melhor leitura */
       }
 
       .avatar::after {
@@ -503,19 +555,20 @@
         text-align: center;
       }
       .shift-name {
-        font-weight: 600;
-        font-size: 1.1rem;
+        font-weight: 700;
+        font-size: 1.2rem;
       }
       .shift-date {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: var(--text-muted);
+        margin-top: 2px;
       }
 
       /* --- MODAL --- */
       .modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.7); /* Fundo mais escuro para foco */
         backdrop-filter: blur(4px);
         -webkit-backdrop-filter: blur(4px);
         z-index: 100;
@@ -540,6 +593,7 @@
         transform: scale(0.95);
         transition: transform 0.2s;
         box-shadow: var(--shadow-md);
+        border: 1px solid var(--border);
       }
       .modal-backdrop.active .modal-content {
         transform: scale(1);
@@ -553,7 +607,8 @@
       }
       .modal-header h2 {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: 1.35rem;
+        font-weight: 700;
       }
 
       .modal-actions {
@@ -575,23 +630,28 @@
       }
       .history-item {
         background: var(--bg-hover);
-        padding: 12px;
+        padding: 14px;
         border-radius: 8px;
         border: 1px solid var(--border);
       }
       .history-date {
         font-weight: 700;
         color: var(--primary);
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
       .history-details {
-        margin-top: 8px;
-        font-size: 0.85rem;
+        margin-top: 10px;
+        font-size: 0.9rem;
       }
       .history-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        border-bottom: 1px dashed var(--border);
+        padding-bottom: 2px;
+      }
+      .history-row:last-child {
+        border-bottom: none;
       }
 
       /* --- TOAST --- */
@@ -610,18 +670,21 @@
         z-index: 2000;
         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         font-weight: 500;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         border: 1px solid var(--border);
         border-left-width: 4px;
       }
       .toast-success {
         border-left-color: var(--success);
+        color: var(--text-main);
       }
       .toast-warning {
         border-left-color: var(--warning);
+        color: var(--text-main);
       }
       .toast-error {
         border-left-color: var(--danger);
+        color: var(--text-main);
       }
 
       @keyframes slideUp {
@@ -806,6 +869,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.exportCSV(); app.toggleMenu()"
               >
@@ -833,6 +897,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.exportPDF(); app.toggleMenu()"
               >
@@ -863,6 +928,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.saveMonthlyClosing(); app.toggleMenu()"
               >
@@ -897,6 +963,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.openHistoryModal(); app.toggleMenu()"
               >
@@ -922,6 +989,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.backupData(); app.toggleMenu()"
               >
@@ -947,6 +1015,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="document.getElementById('importFile').click(); app.toggleMenu()"
               >
@@ -970,6 +1039,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="window.print(); app.toggleMenu()"
               >
@@ -1632,8 +1702,9 @@
 
         // --- ICONS UPDATE ---
         function updateIcons(theme) {
-          // const iconHref = theme === 'dark' ? ICONS.dark : ICONS.light;
-          // document.getElementById('faviconLink').href = iconHref; // Desativado para manter o PNG
+          const iconHref = theme === "dark" ? ICONS.dark : ICONS.light;
+          document.getElementById("faviconLink").href = iconHref; // Desativado para manter o PNG
+          document.getElementById("appleIconLink").href = iconHref;
           // Removido a atualização automática do appleIconLink para manter o PNG estático
         }
 
