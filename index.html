@@ -2020,6 +2020,7 @@
         }
 
         function renderNextShift() {
+<<<<<<< HEAD
           const todayStr = Utils.getLocalISODate(); // Data atual YYYY-MM-DD
           const currentHour = new Date().getHours(); // Hora atual (0-23)
 
@@ -2037,6 +2038,10 @@
             return false;
           });
 
+=======
+          const today = Utils.getLocalISODate();
+          const next = state.find((i) => i.date >= today);
+>>>>>>> 5a9b1f2b0182da56145ac2511e3a785966797ddb
           if (next) {
             els.nextInfo.textContent = next.name;
             els.nextDate.textContent = Utils.formatShortDate(next.date);
