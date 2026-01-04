@@ -18,30 +18,37 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-    <!-- Favicon -->
+    <!-- Favicon & Apple Touch Icon (Dinâmicos) -->
     <link
+      id="faviconLink"
       rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>"
+    />
+    <link
+      id="appleIconLink"
+      rel="apple-touch-icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>"
     />
 
     <style>
       /* --- VARIÁVEIS CSS (THEMING) --- */
       :root {
-        --primary: #3b82f6;
-        --primary-dark: #2563eb;
+        /* CORES MODO CLARO (Acessibilidade: Contraste Alto) */
+        --primary: #2563eb; /* Azul mais forte para leitura em branco */
+        --primary-dark: #1d4ed8;
         --primary-light: #eff6ff;
 
-        --bg-body: #f8fafc;
+        --bg-body: #f1f5f9; /* Slate 100 - Pouco mais escuro que branco puro para conforto */
         --bg-surface: #ffffff;
-        --bg-hover: #f1f5f9;
+        --bg-hover: #e2e8f0;
 
-        --text-main: #0f172a;
-        --text-muted: #64748b;
-        --border: #e2e8f0;
+        --text-main: #0f172a; /* Slate 900 - Quase preto */
+        --text-muted: #475569; /* Slate 600 - Cinza médio/escuro */
+        --border: #cbd5e1; /* Slate 300 - Bordas mais visíveis */
 
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
+        --success: #16a34a; /* Green 600 - Verde mais escuro para texto */
+        --warning: #d97706; /* Amber 600 - Laranja mais escuro */
+        --danger: #dc2626; /* Red 600 - Vermelho mais escuro */
 
         --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
         --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -50,15 +57,25 @@
       }
 
       [data-theme="dark"] {
-        --bg-body: #0f172a;
-        --bg-surface: #1e293b;
-        --bg-hover: #334155;
-        --text-main: #f8fafc;
-        --text-muted: #94a3b8;
-        --border: #334155;
-        --primary-light: rgba(59, 130, 246, 0.1);
+        /* CORES MODO ESCURO (Acessibilidade: Brilho Suave) */
+        --bg-body: #020617; /* Slate 950 - Fundo bem escuro */
+        --bg-surface: #0f172a; /* Slate 900 - Superfícies */
+        --bg-hover: #1e293b; /* Slate 800 */
+
+        --text-main: #f8fafc; /* Slate 50 - Branco suave */
+        --text-muted: #cbd5e1; /* Slate 300 - Cinza claro */
+        --border: #334155; /* Slate 700 */
+
+        --primary: #60a5fa; /* Blue 400 - Azul mais claro para brilhar no escuro */
+        --primary-dark: #3b82f6;
+        --primary-light: rgba(59, 130, 246, 0.15);
+
+        --success: #4ade80; /* Green 400 - Verde claro */
+        --warning: #fbbf24; /* Amber 400 - Amarelo claro */
+        --danger: #f87171; /* Red 400 - Vermelho claro */
+
         --shadow-sm: none;
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
       }
 
       /* --- RESET & BASE --- */
@@ -121,6 +138,10 @@
         font-weight: 700;
         font-size: 1.2rem;
       }
+      [data-theme="dark"] .brand-icon {
+        color: #0f172a; /* Texto escuro no ícone claro em dark mode */
+      }
+
       .brand-info h1 {
         font-size: 1.25rem;
         font-weight: 700;
@@ -160,6 +181,11 @@
         background: var(--primary);
         color: white;
       }
+      [data-theme="dark"] .btn-primary {
+        color: #0f172a; /* Texto escuro para contraste no botão claro */
+        font-weight: 600;
+      }
+
       .btn-primary:hover {
         background: var(--primary-dark);
         transform: translateY(-1px);
@@ -197,7 +223,7 @@
         background: var(--primary);
         color: white;
         border: none;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -208,6 +234,9 @@
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 90;
       }
+      [data-theme="dark"] .btn-back-to-top {
+        color: #0f172a;
+      }
       .btn-back-to-top.visible {
         opacity: 1;
         pointer-events: all;
@@ -216,7 +245,7 @@
       .btn-back-to-top:hover {
         background: var(--primary-dark);
         transform: translateY(-4px);
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
       }
 
       /* --- DASHBOARD --- */
@@ -244,13 +273,14 @@
 
       .stats-header {
         font-size: 0.875rem;
-        font-weight: 600;
+        font-weight: 700; /* Mais bold para acessibilidade */
         color: var(--text-muted);
         margin-bottom: 1rem;
         text-transform: uppercase;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        letter-spacing: 0.5px;
       }
 
       .stat-item {
@@ -267,14 +297,14 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 6px;
-        font-size: 0.9rem;
+        font-size: 0.95rem; /* Texto levemente maior */
         font-weight: 500;
       }
 
       .stat-value {
         display: flex;
         justify-content: space-between;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: var(--success);
         font-weight: 600;
         margin-top: 4px;
@@ -290,14 +320,14 @@
       }
 
       .progress-bg {
-        height: 8px;
+        height: 10px; /* Barra mais grossa */
         background: var(--bg-hover);
-        border-radius: 4px;
+        border-radius: 6px;
         overflow: hidden;
       }
       .progress-fill {
         height: 100%;
-        border-radius: 4px;
+        border-radius: 6px;
         transition: width 0.6s ease-out;
       }
 
@@ -355,21 +385,22 @@
 
       .search-input {
         width: 100%;
-        padding: 10px 10px 10px 40px; /* Espaço para o ícone */
+        padding: 12px 12px 12px 40px; /* Padding maior para toque */
         border-radius: 8px;
         border: 1px solid var(--border);
         background: var(--bg-body);
         color: var(--text-main);
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
       .search-input:focus {
         border-color: var(--primary);
         background: var(--bg-surface);
+        box-shadow: 0 0 0 2px var(--primary-light);
       }
 
       .select-input {
         width: 100%;
-        padding: 10px 30px 10px 40px; /* Espaço para ícone à esquerda e seta à direita */
+        padding: 12px 30px 12px 40px;
         border-radius: 8px;
         border: 1px solid var(--border);
         background: var(--bg-body)
@@ -379,13 +410,16 @@
         appearance: none;
         color: var(--text-main);
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
 
       /* CALENDAR GRID */
       .calendar-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(280px, 1fr)
+        ); /* Cards um pouco mais largos */
         gap: 20px;
       }
 
@@ -414,18 +448,18 @@
       }
 
       .shift-header {
-        padding: 12px 16px;
+        padding: 14px 18px;
         background: var(--bg-hover);
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
 
       .shift-badge {
-        font-size: 0.7rem;
-        padding: 2px 8px;
+        font-size: 0.75rem;
+        padding: 4px 10px;
         border-radius: 99px;
         text-transform: uppercase;
         font-weight: 700;
@@ -435,22 +469,23 @@
         text-overflow: ellipsis;
       }
 
-      /* NOVOS BADGES */
+      /* NOVOS BADGES (Alto Contraste) */
+      /* Light Mode Defaults */
       .badge-50 {
         background: #dbeafe;
-        color: #1e40af;
+        color: #172554;
         border: 1px solid #bfdbfe;
-      } /* Azul */
+      }
       .badge-100 {
         background: #ffedd5;
-        color: #9a3412;
+        color: #7c2d12;
         border: 1px solid #fed7aa;
-      } /* Laranja */
+      }
       .badge-folga {
         background: #dcfce7;
-        color: #166534;
+        color: #14532d;
         border: 1px solid #bbf7d0;
-      } /* Verde */
+      }
       .badge-normal {
         background: var(--bg-body);
         color: var(--text-muted);
@@ -462,26 +497,49 @@
         border: 1px solid var(--primary);
       }
 
+      /* Dark Mode Overrides for Badges */
+      [data-theme="dark"] .badge-50 {
+        background: #172554;
+        color: #dbeafe;
+        border-color: #1e3a8a;
+      }
+      [data-theme="dark"] .badge-100 {
+        background: #431407;
+        color: #ffedd5;
+        border-color: #7c2d12;
+      }
+      [data-theme="dark"] .badge-folga {
+        background: #052e16;
+        color: #dcfce7;
+        border-color: #14532d;
+      }
+      [data-theme="dark"] .badge-today {
+        background: rgba(96, 165, 250, 0.2);
+        color: #60a5fa;
+        border-color: #60a5fa;
+      }
+
       .shift-body {
-        padding: 20px;
+        padding: 24px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
       }
 
       .avatar {
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
+        font-weight: 700;
         color: white;
-        font-size: 1.25rem;
+        font-size: 1.4rem;
         box-shadow: var(--shadow-sm);
         position: relative;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Melhor leitura */
       }
 
       .avatar::after {
@@ -497,19 +555,20 @@
         text-align: center;
       }
       .shift-name {
-        font-weight: 600;
-        font-size: 1.1rem;
+        font-weight: 700;
+        font-size: 1.2rem;
       }
       .shift-date {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: var(--text-muted);
+        margin-top: 2px;
       }
 
       /* --- MODAL --- */
       .modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.7); /* Fundo mais escuro para foco */
         backdrop-filter: blur(4px);
         -webkit-backdrop-filter: blur(4px);
         z-index: 100;
@@ -534,6 +593,7 @@
         transform: scale(0.95);
         transition: transform 0.2s;
         box-shadow: var(--shadow-md);
+        border: 1px solid var(--border);
       }
       .modal-backdrop.active .modal-content {
         transform: scale(1);
@@ -547,7 +607,8 @@
       }
       .modal-header h2 {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: 1.35rem;
+        font-weight: 700;
       }
 
       .modal-actions {
@@ -557,6 +618,40 @@
         margin-top: 24px;
         padding-top: 20px;
         border-top: 1px solid var(--border);
+      }
+
+      /* --- HISTORICO LIST --- */
+      .history-list {
+        max-height: 300px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .history-item {
+        background: var(--bg-hover);
+        padding: 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+      .history-date {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 0.95rem;
+      }
+      .history-details {
+        margin-top: 10px;
+        font-size: 0.9rem;
+      }
+      .history-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        border-bottom: 1px dashed var(--border);
+        padding-bottom: 2px;
+      }
+      .history-row:last-child {
+        border-bottom: none;
       }
 
       /* --- TOAST --- */
@@ -575,18 +670,21 @@
         z-index: 2000;
         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         font-weight: 500;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         border: 1px solid var(--border);
         border-left-width: 4px;
       }
       .toast-success {
         border-left-color: var(--success);
+        color: var(--text-main);
       }
       .toast-warning {
         border-left-color: var(--warning);
+        color: var(--text-main);
       }
       .toast-error {
         border-left-color: var(--danger);
+        color: var(--text-main);
       }
 
       @keyframes slideUp {
@@ -771,6 +869,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.exportCSV(); app.toggleMenu()"
               >
@@ -798,6 +897,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.exportPDF(); app.toggleMenu()"
               >
@@ -828,6 +928,68 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
+                "
+                onclick="app.saveMonthlyClosing(); app.toggleMenu()"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                  ></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                  <text
+                    x="6"
+                    y="18"
+                    font-size="5"
+                    fill="currentColor"
+                    font-weight="bold"
+                  >
+                    $
+                  </text>
+                </svg>
+                Salvar Fechamento
+              </button>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                  color: var(--text-muted);
+                "
+                onclick="app.openHistoryModal(); app.toggleMenu()"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Ver Histórico
+              </button>
+
+              <div
+                style="border-top: 1px solid var(--border); margin: 4px 0"
+              ></div>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  justify-content: flex-start;
+                  border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="app.backupData(); app.toggleMenu()"
               >
@@ -853,6 +1015,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="document.getElementById('importFile').click(); app.toggleMenu()"
               >
@@ -876,6 +1039,7 @@
                   width: 100%;
                   justify-content: flex-start;
                   border-radius: 0;
+                  color: var(--text-muted);
                 "
                 onclick="window.print(); app.toggleMenu()"
               >
@@ -1211,10 +1375,61 @@
       </div>
     </div>
 
-    <script>
-      /**
-       * UTILS: Date & Helper Functions
-       */
+    <!-- NOVO: MODAL DE HISTÓRICO -->
+    <div class="modal-backdrop" id="historyModal">
+      <div class="modal-content" style="max-width: 500px">
+        <div class="modal-header">
+          <h2>Histórico de Fechamentos</h2>
+          <button class="btn btn-icon" onclick="app.closeHistoryModal()">
+            &times;
+          </button>
+        </div>
+        <div class="history-list" id="historyListContainer">
+          <!-- Lista será renderizada aqui via JS -->
+          <p style="text-align: center; color: var(--text-muted)">
+            A carregar...
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="app.closeHistoryModal()">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        setDoc,
+        doc,
+        query,
+        orderBy,
+        deleteDoc,
+        getDoc,
+        onSnapshot,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // --- COLE SUA CONFIGURAÇÃO DO FIREBASE AQUI ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyDsyKD3JwVHfMqLNyfEBo1D35Eu9g8W60Y",
+        authDomain: "escala-extraordinaria.firebaseapp.com",
+        projectId: "escala-extraordinaria",
+        storageBucket: "escala-extraordinaria.firebasestorage.app",
+        messagingSenderId: "638653020070",
+        appId: "1:638653020070:web:9956783bf5e8a984210167",
+      };
+
+      // Inicializar Firebase
+      const fbApp = initializeApp(firebaseConfig);
+      const db = getFirestore(fbApp);
+
+      // --- UTILS ---
       const Utils = {
         formatDateDisplay: (dateStr) => {
           const [y, m, d] = dateStr.split("-");
@@ -1244,7 +1459,6 @@
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase(),
-        // CORREÇÃO: Usa timezone local para garantir que 'Hoje' esteja correto
         getLocalISODate: () => {
           const d = new Date();
           const offset = d.getTimezoneOffset() * 60000;
@@ -1269,99 +1483,162 @@
         },
       };
 
-      /**
-       * SERVICE: Data & Storage Management (Versão API)
-       */
-      const DataService = {
-        // CONFIGURAÇÃO: URL Base do Servidor
-        API_URL: "http://localhost:3000",
+      // --- ICONS SVG (Mantidos para referência, mas desativados para usar o PNG estático) ---
+      const ICONS = {
+        light:
+          "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>",
+        dark: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f172a%22/><path stroke=%22%23f8fafc%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>",
+      };
 
-        // Carrega dados do servidor
-        async getInitialData() {
+      // --- DATA SERVICE (FIREBASE) ---
+      const FirebaseDataService = {
+        config: null,
+
+        async getFinancialConfig() {
           try {
-            const response = await fetch(`${this.API_URL}/api/escala`);
+            const docRef = doc(db, "configuracoes", "calculo_horas");
+            const docSnap = await getDoc(docRef);
+            const defaultConfig = {
+              divisor: 220,
+              horas_plantao: 9,
+              salarios: { Jefferson: 0, Jessé: 0, Júnior: 0 },
+              multiplicadores: {
+                "Sábado (50%)": 1.5,
+                "Domingo (100%)": 2.0,
+                "Feriado (100%)": 2.0,
+                "Ponto Facultativo (Folga)": 0,
+              },
+            };
 
-            if (!response.ok) throw new Error("Falha na rede");
-
-            const data = await response.json();
-
-            // Se a base de dados estiver vazia, gera localmente e envia para o servidor
-            if (data.length === 0) {
-              const newData = this.generate2026();
-              await this.resetDataOnServer(newData);
-              return newData;
-            }
-
-            // Normalizar formato de data
-            return data.map((item) => ({
-              ...item,
-              date: item.data.split("T")[0],
-              name: item.nome,
-              type: item.tipo,
-            }));
-          } catch (error) {
-            console.error("Erro ao conectar na API:", error);
-            Utils.showToast("Erro ao conectar no servidor.", "error");
-            return this.generate2026();
-          }
-        },
-
-        // Salva alterações
-        async save(fullDataList) {
-          const dbPayload = fullDataList.map((item) => ({
-            data: item.date,
-            nome: item.name,
-            tipo: item.type,
-          }));
-
-          try {
-            const response = await fetch(`${this.API_URL}/api/escala/reset`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(dbPayload),
-            });
-            if (!response.ok) throw new Error("Erro ao salvar");
+            if (docSnap.exists())
+              return { ...defaultConfig, ...docSnap.data() };
+            else return defaultConfig;
           } catch (e) {
-            console.error("Erro ao salvar:", e);
-            Utils.showToast("Erro ao salvar no banco de dados.", "error");
+            console.error("Erro ao buscar config financeira:", e);
+            return {
+              divisor: 220,
+              horas_plantao: 9,
+              salarios: {},
+              multiplicadores: {},
+            };
           }
         },
 
-        // Função auxiliar para enviar tudo (usada na inicialização)
-        async resetDataOnServer(data) {
-          const dbPayload = data.map((item) => ({
-            data: item.date,
-            nome: item.name,
-            tipo: item.type,
-          }));
+        subscribeToFinancialConfig(callback) {
+          const docRef = doc(db, "configuracoes", "calculo_horas");
+          const defaultConfig = {
+            divisor: 220,
+            horas_plantao: 9,
+            salarios: { Jefferson: 0, Jessé: 0, Júnior: 0 },
+            multiplicadores: {},
+          };
 
-          return fetch(`${this.API_URL}/api/escala/reset`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dbPayload),
+          return onSnapshot(
+            docRef,
+            (docSnap) => {
+              if (docSnap.exists()) {
+                const newConfig = { ...defaultConfig, ...docSnap.data() };
+                this.config = newConfig;
+                callback(newConfig);
+              } else {
+                this.config = defaultConfig;
+                callback(defaultConfig);
+              }
+            },
+            (error) => console.error("Erro ao ouvir config:", error)
+          );
+        },
+
+        subscribeToData(callback) {
+          const q = query(collection(db, "plantoes"));
+          return onSnapshot(
+            q,
+            (querySnapshot) => {
+              if (querySnapshot.empty) {
+                const newData = this.generate2026();
+                this.save(newData);
+                return;
+              }
+              const data = [];
+              querySnapshot.forEach((doc) => data.push(doc.data()));
+              const sortedData = data.sort((a, b) =>
+                a.date.localeCompare(b.date)
+              );
+              callback(sortedData);
+            },
+            (error) => {
+              console.error("Erro no listener:", error);
+              Utils.showToast("Erro de conexão em tempo real.", "error");
+            }
+          );
+        },
+
+        // NOVO: Listener para Fechamentos Mensais
+        subscribeToClosings(callback) {
+          // Ordenar por ID (que é ano-mês, ex: 2026-01) decrescente para ver os mais recentes primeiro
+          const q = query(collection(db, "fechamentos_mensais"));
+          return onSnapshot(q, (querySnapshot) => {
+            const data = [];
+            querySnapshot.forEach((doc) => {
+              data.push({ id: doc.id, ...doc.data() });
+            });
+            // Ordenar decrescente (mais recente primeiro)
+            const sorted = data.sort((a, b) => b.id.localeCompare(a.id));
+            callback(sorted);
           });
         },
 
-        // Gera a escala base (igual ao original)
+        async save(fullDataList) {
+          try {
+            const promises = fullDataList.map((item) =>
+              setDoc(doc(db, "plantoes", item.date), item)
+            );
+            await Promise.all(promises);
+          } catch (e) {
+            console.error("Erro ao salvar no Firebase:", e);
+            Utils.showToast("Erro ao salvar no banco.", "error");
+          }
+        },
+
+        async saveClosing(month, year, stats) {
+          try {
+            const id = `${year}-${String(month).padStart(2, "0")}`;
+            await setDoc(doc(db, "fechamentos_mensais", id), {
+              mes: parseInt(month),
+              ano: parseInt(year),
+              totais: stats,
+              criado_em: serverTimestamp(),
+            });
+            Utils.showToast(`Fechamento de ${month}/${year} salvo!`, "success");
+          } catch (e) {
+            console.error("Erro ao salvar fechamento:", e);
+            Utils.showToast("Erro ao salvar fechamento.", "error");
+          }
+        },
+
+        async delete(dateStr) {
+          try {
+            await deleteDoc(doc(db, "plantoes", dateStr));
+          } catch (e) {
+            console.error("Erro ao deletar documento antigo:", e);
+          }
+        },
+
         generate2026() {
           const data = [];
           const staff = ["Jessé", "Júnior", "Jefferson"];
           let staffIdx = 0;
           let date = new Date(2026, 0, 1);
-
           while (date.getDay() !== 6) date.setDate(date.getDate() + 1);
-
           while (date.getFullYear() === 2026) {
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, "0");
             const d = String(date.getDate()).padStart(2, "0");
-
             data.push({
               date: `${y}-${m}-${d}`,
               name: staff[staffIdx],
               type: "Sábado (50%)",
             });
-
             date.setDate(date.getDate() + 7);
             staffIdx = (staffIdx + 1) % staff.length;
           }
@@ -1369,24 +1646,11 @@
         },
       };
 
-      /**
-       * CONTROLLER: Main Logic
-       */
-      const app = (() => {
+      // --- APP CONTROLLER ---
+      const App = (() => {
         let state = [];
-        let showValues = false; // Estado padrão: valores ocultos
-
-        // CONFIGURAÇÃO DE SALÁRIOS E CÁLCULO
-        // Regra: Salário / 220 (divisor mensal) * Multiplicador * 9 horas de plantão
-        const CONFIG = {
-          hoursPerShift: 9, // Atualizado para 9 horas
-          divisor: 220,
-          salaries: {
-            Jefferson: 6012.17,
-            Jessé: 4500.17,
-            Júnior: 4500.17,
-          },
-        };
+        let closings = []; // Estado para o histórico
+        let showValues = false;
 
         const els = {
           grid: document.getElementById("gridContainer"),
@@ -1399,28 +1663,55 @@
           filterM: document.getElementById("monthFilter"),
           filterP: document.getElementById("personFilter"),
           modal: document.getElementById("editModal"),
+          historyModal: document.getElementById("historyModal"), // Novo modal
+          historyList: document.getElementById("historyListContainer"), // Lista do histórico
           menu: document.getElementById("dropdownMenu"),
           toggleBtn: document.getElementById("btnToggleValues"),
         };
 
         function init() {
-          DataService.getInitialData().then((data) => {
-            state = data;
-            setupTheme();
-            setupScrollToTop();
-            render();
+          FirebaseDataService.getFinancialConfig().then((config) => {
+            FirebaseDataService.config = config;
+
+            FirebaseDataService.subscribeToFinancialConfig((newConfig) => {
+              render();
+            });
+
+            FirebaseDataService.subscribeToData((data) => {
+              state = data;
+              if (!document.body.hasAttribute("data-ready")) {
+                setupTheme();
+                setupScrollToTop();
+                document.body.setAttribute("data-ready", "true");
+              }
+              render();
+            });
+
+            // Escutar Histórico
+            FirebaseDataService.subscribeToClosings((data) => {
+              closings = data;
+              renderHistory(); // Atualiza a lista se o modal estiver aberto (ou para quando abrir)
+            });
           });
 
           document.addEventListener("click", (e) => {
-            if (!e.target.closest(".nav-actions")) {
+            if (!e.target.closest(".nav-actions"))
               els.menu.style.display = "none";
-            }
           });
+        }
+
+        // --- ICONS UPDATE ---
+        function updateIcons(theme) {
+          const iconHref = theme === "dark" ? ICONS.dark : ICONS.light;
+          document.getElementById("faviconLink").href = iconHref; // Desativado para manter o PNG
+          document.getElementById("appleIconLink").href = iconHref;
+          // Removido a atualização automática do appleIconLink para manter o PNG estático
         }
 
         function setupTheme() {
           const savedTheme = localStorage.getItem("theme") || "light";
           document.documentElement.setAttribute("data-theme", savedTheme);
+          updateIcons(savedTheme); // Initialize icons
 
           document
             .getElementById("themeToggle")
@@ -1430,17 +1721,15 @@
               const next = current === "light" ? "dark" : "light";
               document.documentElement.setAttribute("data-theme", next);
               localStorage.setItem("theme", next);
+              updateIcons(next); // Update icons on toggle
             });
         }
 
         function setupScrollToTop() {
           const btn = document.getElementById("btnBackToTop");
           window.addEventListener("scroll", () => {
-            if (window.scrollY > 300) {
-              btn.classList.add("visible");
-            } else {
-              btn.classList.remove("visible");
-            }
+            if (window.scrollY > 300) btn.classList.add("visible");
+            else btn.classList.remove("visible");
           });
         }
 
@@ -1471,7 +1760,6 @@
           render();
         }
 
-        // --- GERAÇÃO DE PDF (COMUM) ---
         function createPDFDoc() {
           if (!window.jspdf) {
             Utils.showToast("Erro: Biblioteca PDF não carregada.", "error");
@@ -1517,6 +1805,121 @@
           if (doc) doc.save("escala_2026.pdf");
         }
 
+        function calculateStats(dataList) {
+          const counts = {};
+          const values = {};
+          ["Jefferson", "Jessé", "Júnior"].forEach((n) => {
+            counts[n] = 0;
+            values[n] = 0;
+          });
+
+          const config = FirebaseDataService.config || {
+            horas_plantao: 0,
+            divisor: 1,
+            salarios: {},
+            multiplicadores: {},
+          };
+
+          dataList.forEach((item) => {
+            counts[item.name] = (counts[item.name] || 0) + 1;
+            const salary = config.salarios?.[item.name] || 0;
+            const hourlyRate = salary / (config.divisor || 1);
+            let multiplier = config.multiplicadores?.[item.type];
+
+            if (multiplier === undefined) {
+              if (item.type.includes("50%")) multiplier = 1.5;
+              else if (item.type.includes("100%")) multiplier = 2.0;
+              else multiplier = 0;
+            }
+            const shiftValue =
+              hourlyRate * multiplier * (config.horas_plantao || 0);
+            values[item.name] += shiftValue;
+          });
+
+          return { counts, values, total: dataList.length };
+        }
+
+        function saveMonthlyClosing() {
+          const monthVal = els.filterM.value;
+          if (monthVal === "all") {
+            alert(
+              "Por favor, selecione um mês específico no filtro para salvar o fechamento."
+            );
+            return;
+          }
+          const monthData = state.filter((item) => {
+            const [y, m, d] = item.date.split("-");
+            return parseInt(m) === parseInt(monthVal);
+          });
+          if (monthData.length === 0) {
+            alert("Não há dados para o mês selecionado.");
+            return;
+          }
+          const stats = calculateStats(monthData);
+          const year = 2026;
+          FirebaseDataService.saveClosing(monthVal, year, stats.values);
+        }
+
+        // --- HISTÓRICO ---
+        function openHistoryModal() {
+          renderHistory();
+          els.historyModal.classList.add("active");
+        }
+
+        function closeHistoryModal() {
+          els.historyModal.classList.remove("active");
+        }
+
+        function renderHistory() {
+          if (closings.length === 0) {
+            els.historyList.innerHTML = `<p style="text-align:center; color:var(--text-muted);">Nenhum fechamento salvo.</p>`;
+            return;
+          }
+
+          els.historyList.innerHTML = closings
+            .map((c) => {
+              const totalGeral = Object.values(c.totais || {}).reduce(
+                (a, b) => a + b,
+                0
+              );
+              const monthName = new Date(c.ano, c.mes - 1).toLocaleDateString(
+                "pt-BR",
+                { month: "long", year: "numeric" }
+              );
+
+              const details = Object.entries(c.totais || {})
+                .map(
+                  ([name, val]) =>
+                    `<div class="history-row"><span>${name}</span><strong>${Utils.formatMoney(
+                      val
+                    )}</strong></div>`
+                )
+                .join("");
+
+              return `
+                   <div class="history-item">
+                      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                         <span class="history-date">${
+                           monthName.charAt(0).toUpperCase() +
+                           monthName.slice(1)
+                         }</span>
+                         <span style="font-size:0.8rem; color:var(--text-muted)">Salvo em: ${
+                           c.criado_em
+                             ? new Date(
+                                 c.criado_em.seconds * 1000
+                               ).toLocaleDateString()
+                             : "Hoje"
+                         }</span>
+                      </div>
+                      <div class="history-details">${details}</div>
+                   </div>
+                `;
+            })
+            .join("");
+        }
+
+        // ... [Resto da lógica de renderização e modal igual] ...
+
         function render() {
           renderGrid();
           renderNextShift();
@@ -1541,7 +1944,8 @@
               return matchesMonth && matchesPerson && matchesSearch;
             });
 
-          renderStats(filtered);
+          const stats = calculateStats(filtered);
+          renderStatsUI(stats);
 
           els.grid.innerHTML = filtered
             .map((item, i) => {
@@ -1581,29 +1985,8 @@
             .join("");
         }
 
-        function renderStats(dataToAnalyze) {
-          const counts = {};
-          const values = {};
-          ["Jefferson", "Jessé", "Júnior"].forEach((n) => {
-            counts[n] = 0;
-            values[n] = 0;
-          });
-
-          const total = dataToAnalyze.length;
-
-          dataToAnalyze.forEach((item) => {
-            counts[item.name] = (counts[item.name] || 0) + 1;
-            const salary = CONFIG.salaries[item.name] || 0;
-            const hourlyRate = salary / CONFIG.divisor;
-            let multiplier = 0;
-            if (item.type.includes("50%")) multiplier = 1.5;
-            else if (item.type.includes("100%")) multiplier = 2.0;
-            const shiftValue = hourlyRate * multiplier * CONFIG.hoursPerShift;
-            values[item.name] += shiftValue;
-          });
-
+        function renderStatsUI({ counts, values, total }) {
           els.total.textContent = total;
-
           els.stats.innerHTML = Object.entries(counts)
             .map(([name, count]) => {
               const percent =
@@ -1637,8 +2020,22 @@
         }
 
         function renderNextShift() {
-          const today = Utils.getLocalISODate();
-          const next = state.find((i) => i.date >= today);
+          const todayStr = Utils.getLocalISODate(); // Data atual YYYY-MM-DD
+          const currentHour = new Date().getHours(); // Hora atual (0-23)
+
+          // Lógica atualizada: Próximo plantão muda após as 17h do dia do plantão atual
+          const next = state.find((item) => {
+            // Se for data futura, é candidato
+            if (item.date > todayStr) return true;
+
+            // Se for hoje, só mostra se for ANTES das 17h
+            if (item.date === todayStr) {
+              return currentHour < 17;
+            }
+
+            // Datas passadas são ignoradas
+            return false;
+          });
 
           if (next) {
             els.nextInfo.textContent = next.name;
@@ -1696,12 +2093,15 @@
                 return;
               }
               state[conflictIdx].date = oldDate;
+              FirebaseDataService.save([state[conflictIdx]]);
               Utils.showToast("Troca de plantão realizada!", "warning");
+            } else {
+              FirebaseDataService.delete(oldDate);
             }
           }
 
           state[idx] = { date: newDate, name: newName, type: newType };
-          DataService.save(state);
+          FirebaseDataService.save([state[idx]]);
           render();
           closeModal();
           if (newDate === oldDate)
@@ -1734,7 +2134,7 @@
                 json[0].name
               ) {
                 state = json;
-                DataService.save(state);
+                FirebaseDataService.save(state);
                 render();
                 Utils.showToast("Backup restaurado com sucesso!", "success");
               } else {
@@ -1768,9 +2168,9 @@
               "ATENÇÃO: Isso apagará todas as edições manuais e restaurará a escala original. Continuar?"
             )
           ) {
-            const defaultData = DataService.generate2026();
+            const defaultData = FirebaseDataService.generate2026();
             state = defaultData;
-            DataService.save(state);
+            FirebaseDataService.save(state);
             render();
             Utils.showToast("Escala resetada para o padrão.", "success");
           }
@@ -1781,11 +2181,14 @@
           filter: render,
           openModal,
           closeModal,
+          closeHistoryModal,
+          openHistoryModal,
           saveChanges,
           backupData,
           importBackup,
           exportCSV,
           exportPDF,
+          saveMonthlyClosing,
           resetData,
           toggleMenu,
           toggleValues,
@@ -1793,7 +2196,8 @@
         };
       })();
 
-      document.addEventListener("DOMContentLoaded", app.init);
+      window.app = App;
+      document.addEventListener("DOMContentLoaded", App.init);
     </script>
   </body>
 </html>
