@@ -486,6 +486,11 @@
         color: #14532d;
         border: 1px solid #bbf7d0;
       }
+      .badge-pagando {
+        background: #f3e8ff;
+        color: #6b21a8;
+        border: 1px solid #d8b4fe;
+      } /* Roxo para Vem Pagando */
       .badge-normal {
         background: var(--bg-body);
         color: var(--text-muted);
@@ -512,6 +517,11 @@
         background: #052e16;
         color: #dcfce7;
         border-color: #14532d;
+      }
+      [data-theme="dark"] .badge-pagando {
+        background: #3b0764;
+        color: #e9d5ff;
+        border-color: #6b21a8;
       }
       [data-theme="dark"] .badge-today {
         background: rgba(96, 165, 250, 0.2);
@@ -1355,6 +1365,9 @@
             >
             <select id="editType" class="select-input" style="width: 100%">
               <option value="Sábado (50%)">Sábado (50%)</option>
+              <option value="Sábado (Vem Pagando Dia)">
+                Sábado (Vem Pagando Dia)
+              </option>
               <option value="Domingo (100%)">Domingo (100%)</option>
               <option value="Feriado (100%)">Feriado (100%)</option>
               <option value="Ponto Facultativo (Folga)">
@@ -1472,6 +1485,7 @@
           if (type.includes("50%")) return "badge-50";
           if (type.includes("100%")) return "badge-100";
           if (type.includes("Folga")) return "badge-folga";
+          if (type.includes("Pagando")) return "badge-pagando";
           return "badge-normal";
         },
         showToast: (msg, type = "success") => {
@@ -1492,29 +1506,45 @@
 
       // --- DATA SERVICE (FIREBASE) ---
       const FirebaseDataService = {
-        config: null,
+        config: null, // To store fetched config
 
         async getFinancialConfig() {
           try {
+            // Busca configurações da coleção 'configuracoes', documento 'calculo_horas'
             const docRef = doc(db, "configuracoes", "calculo_horas");
             const docSnap = await getDoc(docRef);
+
+            // Configuração Padrão (SEM VALORES SENSÍVEIS)
             const defaultConfig = {
               divisor: 220,
               horas_plantao: 9,
-              salarios: { Jefferson: 0, Jessé: 0, Júnior: 0 },
+              salarios: {
+                Jefferson: 0,
+                Jessé: 0,
+                Júnior: 0,
+              },
               multiplicadores: {
                 "Sábado (50%)": 1.5,
+                "Sábado (Vem Pagando Dia)": 2.0,
                 "Domingo (100%)": 2.0,
                 "Feriado (100%)": 2.0,
                 "Ponto Facultativo (Folga)": 0,
               },
             };
 
-            if (docSnap.exists())
+            if (docSnap.exists()) {
+              // Usa os dados do banco (onde estão os salários reais)
               return { ...defaultConfig, ...docSnap.data() };
-            else return defaultConfig;
+            } else {
+              console.warn(
+                "Configuração financeira não encontrada no Firebase. Usando padrão seguro (zerado)."
+              );
+              // Não cria automaticamente para não gravar zeros no banco se a conexão falhar
+              return defaultConfig;
+            }
           } catch (e) {
             console.error("Erro ao buscar config financeira:", e);
+            // Fallback seguro em caso de erro
             return {
               divisor: 220,
               horas_plantao: 9,
@@ -1526,11 +1556,18 @@
 
         subscribeToFinancialConfig(callback) {
           const docRef = doc(db, "configuracoes", "calculo_horas");
+          // Valores padrão seguros
           const defaultConfig = {
             divisor: 220,
             horas_plantao: 9,
             salarios: { Jefferson: 0, Jessé: 0, Júnior: 0 },
-            multiplicadores: {},
+            multiplicadores: {
+              "Sábado (50%)": 1.5,
+              "Sábado (Vem Pagando Dia)": 2.0,
+              "Domingo (100%)": 2.0,
+              "Feriado (100%)": 2.0,
+              "Ponto Facultativo (Folga)": 0,
+            },
           };
 
           return onSnapshot(
@@ -1822,8 +1859,10 @@
 
           dataList.forEach((item) => {
             counts[item.name] = (counts[item.name] || 0) + 1;
+            // Optional Chaining para segurança
             const salary = config.salarios?.[item.name] || 0;
             const hourlyRate = salary / (config.divisor || 1);
+
             let multiplier = config.multiplicadores?.[item.type];
 
             if (multiplier === undefined) {
@@ -2020,8 +2059,23 @@
         }
 
         function renderNextShift() {
-          const today = Utils.getLocalISODate();
-          const next = state.find((i) => i.date >= today);
+          const todayStr = Utils.getLocalISODate(); // Data atual YYYY-MM-DD
+          const currentHour = new Date().getHours(); // Hora atual (0-23)
+
+          // Lógica atualizada: Próximo plantão muda após as 17h do dia do plantão atual
+          const next = state.find((item) => {
+            // Se for data futura, é candidato
+            if (item.date > todayStr) return true;
+
+            // Se for hoje, só mostra se for ANTES das 17h
+            if (item.date === todayStr) {
+              return currentHour < 17;
+            }
+
+            // Datas passadas são ignoradas
+            return false;
+          });
+
           if (next) {
             els.nextInfo.textContent = next.name;
             els.nextDate.textContent = Utils.formatShortDate(next.date);
