@@ -485,12 +485,7 @@
         background: #dcfce7;
         color: #14532d;
         border: 1px solid #bbf7d0;
-      }
-      .badge-pagando {
-        background: #f3e8ff;
-        color: #6b21a8;
-        border: 1px solid #d8b4fe;
-      } /* Roxo para Vem Pagando */
+      } /* Verde */
       .badge-normal {
         background: var(--bg-body);
         color: var(--text-muted);
@@ -500,33 +495,6 @@
         background: var(--primary-light);
         color: var(--primary);
         border: 1px solid var(--primary);
-      }
-
-      /* Dark Mode Overrides for Badges */
-      [data-theme="dark"] .badge-50 {
-        background: #172554;
-        color: #dbeafe;
-        border-color: #1e3a8a;
-      }
-      [data-theme="dark"] .badge-100 {
-        background: #431407;
-        color: #ffedd5;
-        border-color: #7c2d12;
-      }
-      [data-theme="dark"] .badge-folga {
-        background: #052e16;
-        color: #dcfce7;
-        border-color: #14532d;
-      }
-      [data-theme="dark"] .badge-pagando {
-        background: #3b0764;
-        color: #e9d5ff;
-        border-color: #6b21a8;
-      }
-      [data-theme="dark"] .badge-today {
-        background: rgba(96, 165, 250, 0.2);
-        color: #60a5fa;
-        border-color: #60a5fa;
       }
 
       .shift-body {
@@ -1497,134 +1465,44 @@
         },
       };
 
-      // --- ICONS SVG (Mantidos para referência, mas desativados para usar o PNG estático) ---
-      const ICONS = {
-        light:
-          "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><path stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>",
-        dark: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f172a%22/><path stroke=%22%23f8fafc%22 stroke-width=%228%22 stroke-linecap=%22round%22 fill=%22none%22 d=%22M20 30h60v50H20zM35 15v25M65 15v25M20 50h60%22/></svg>",
-      };
+      /**
+       * SERVICE: Data & Storage Management (Versão API)
+       */
+      const DataService = {
+        // CONFIGURAÇÃO: URL Base do Servidor
+        API_URL: "http://localhost:3000",
 
-      // --- DATA SERVICE (FIREBASE) ---
-      const FirebaseDataService = {
-        config: null, // To store fetched config
-
-        async getFinancialConfig() {
+        // Carrega dados do servidor
+        async getInitialData() {
           try {
-            // Busca configurações da coleção 'configuracoes', documento 'calculo_horas'
-            const docRef = doc(db, "configuracoes", "calculo_horas");
-            const docSnap = await getDoc(docRef);
+            const response = await fetch(`${this.API_URL}/api/escala`);
 
-            // Configuração Padrão (SEM VALORES SENSÍVEIS)
-            const defaultConfig = {
-              divisor: 220,
-              horas_plantao: 9,
-              salarios: {
-                Jefferson: 0,
-                Jessé: 0,
-                Júnior: 0,
-              },
-              multiplicadores: {
-                "Sábado (50%)": 1.5,
-                "Sábado (Vem Pagando Dia)": 2.0,
-                "Domingo (100%)": 2.0,
-                "Feriado (100%)": 2.0,
-                "Ponto Facultativo (Folga)": 0,
-              },
-            };
+            if (!response.ok) throw new Error("Falha na rede");
 
-            if (docSnap.exists()) {
-              // Usa os dados do banco (onde estão os salários reais)
-              return { ...defaultConfig, ...docSnap.data() };
-            } else {
-              console.warn(
-                "Configuração financeira não encontrada no Firebase. Usando padrão seguro (zerado)."
-              );
-              // Não cria automaticamente para não gravar zeros no banco se a conexão falhar
-              return defaultConfig;
+            const data = await response.json();
+
+            // Se a base de dados estiver vazia, gera localmente e envia para o servidor
+            if (data.length === 0) {
+              const newData = this.generate2026();
+              await this.resetDataOnServer(newData);
+              return newData;
             }
-          } catch (e) {
-            console.error("Erro ao buscar config financeira:", e);
-            // Fallback seguro em caso de erro
-            return {
-              divisor: 220,
-              horas_plantao: 9,
-              salarios: {},
-              multiplicadores: {},
-            };
+
+            // Normalizar formato de data
+            return data.map((item) => ({
+              ...item,
+              date: item.data.split("T")[0],
+              name: item.nome,
+              type: item.tipo,
+            }));
+          } catch (error) {
+            console.error("Erro ao conectar na API:", error);
+            Utils.showToast("Erro ao conectar no servidor.", "error");
+            return this.generate2026();
           }
         },
 
-        subscribeToFinancialConfig(callback) {
-          const docRef = doc(db, "configuracoes", "calculo_horas");
-          // Valores padrão seguros
-          const defaultConfig = {
-            divisor: 220,
-            horas_plantao: 9,
-            salarios: { Jefferson: 0, Jessé: 0, Júnior: 0 },
-            multiplicadores: {
-              "Sábado (50%)": 1.5,
-              "Sábado (Vem Pagando Dia)": 2.0,
-              "Domingo (100%)": 2.0,
-              "Feriado (100%)": 2.0,
-              "Ponto Facultativo (Folga)": 0,
-            },
-          };
-
-          return onSnapshot(
-            docRef,
-            (docSnap) => {
-              if (docSnap.exists()) {
-                const newConfig = { ...defaultConfig, ...docSnap.data() };
-                this.config = newConfig;
-                callback(newConfig);
-              } else {
-                this.config = defaultConfig;
-                callback(defaultConfig);
-              }
-            },
-            (error) => console.error("Erro ao ouvir config:", error)
-          );
-        },
-
-        subscribeToData(callback) {
-          const q = query(collection(db, "plantoes"));
-          return onSnapshot(
-            q,
-            (querySnapshot) => {
-              if (querySnapshot.empty) {
-                const newData = this.generate2026();
-                this.save(newData);
-                return;
-              }
-              const data = [];
-              querySnapshot.forEach((doc) => data.push(doc.data()));
-              const sortedData = data.sort((a, b) =>
-                a.date.localeCompare(b.date)
-              );
-              callback(sortedData);
-            },
-            (error) => {
-              console.error("Erro no listener:", error);
-              Utils.showToast("Erro de conexão em tempo real.", "error");
-            }
-          );
-        },
-
-        // NOVO: Listener para Fechamentos Mensais
-        subscribeToClosings(callback) {
-          // Ordenar por ID (que é ano-mês, ex: 2026-01) decrescente para ver os mais recentes primeiro
-          const q = query(collection(db, "fechamentos_mensais"));
-          return onSnapshot(q, (querySnapshot) => {
-            const data = [];
-            querySnapshot.forEach((doc) => {
-              data.push({ id: doc.id, ...doc.data() });
-            });
-            // Ordenar decrescente (mais recente primeiro)
-            const sorted = data.sort((a, b) => b.id.localeCompare(a.id));
-            callback(sorted);
-          });
-        },
-
+        // Salva alterações
         async save(fullDataList) {
           try {
             const promises = fullDataList.map((item) =>
@@ -1841,123 +1719,6 @@
           const doc = createPDFDoc();
           if (doc) doc.save("escala_2026.pdf");
         }
-
-        function calculateStats(dataList) {
-          const counts = {};
-          const values = {};
-          ["Jefferson", "Jessé", "Júnior"].forEach((n) => {
-            counts[n] = 0;
-            values[n] = 0;
-          });
-
-          const config = FirebaseDataService.config || {
-            horas_plantao: 0,
-            divisor: 1,
-            salarios: {},
-            multiplicadores: {},
-          };
-
-          dataList.forEach((item) => {
-            counts[item.name] = (counts[item.name] || 0) + 1;
-            // Optional Chaining para segurança
-            const salary = config.salarios?.[item.name] || 0;
-            const hourlyRate = salary / (config.divisor || 1);
-
-            let multiplier = config.multiplicadores?.[item.type];
-
-            if (multiplier === undefined) {
-              if (item.type.includes("50%")) multiplier = 1.5;
-              else if (item.type.includes("100%")) multiplier = 2.0;
-              else multiplier = 0;
-            }
-            const shiftValue =
-              hourlyRate * multiplier * (config.horas_plantao || 0);
-            values[item.name] += shiftValue;
-          });
-
-          return { counts, values, total: dataList.length };
-        }
-
-        function saveMonthlyClosing() {
-          const monthVal = els.filterM.value;
-          if (monthVal === "all") {
-            alert(
-              "Por favor, selecione um mês específico no filtro para salvar o fechamento."
-            );
-            return;
-          }
-          const monthData = state.filter((item) => {
-            const [y, m, d] = item.date.split("-");
-            return parseInt(m) === parseInt(monthVal);
-          });
-          if (monthData.length === 0) {
-            alert("Não há dados para o mês selecionado.");
-            return;
-          }
-          const stats = calculateStats(monthData);
-          const year = 2026;
-          FirebaseDataService.saveClosing(monthVal, year, stats.values);
-        }
-
-        // --- HISTÓRICO ---
-        function openHistoryModal() {
-          renderHistory();
-          els.historyModal.classList.add("active");
-        }
-
-        function closeHistoryModal() {
-          els.historyModal.classList.remove("active");
-        }
-
-        function renderHistory() {
-          if (closings.length === 0) {
-            els.historyList.innerHTML = `<p style="text-align:center; color:var(--text-muted);">Nenhum fechamento salvo.</p>`;
-            return;
-          }
-
-          els.historyList.innerHTML = closings
-            .map((c) => {
-              const totalGeral = Object.values(c.totais || {}).reduce(
-                (a, b) => a + b,
-                0
-              );
-              const monthName = new Date(c.ano, c.mes - 1).toLocaleDateString(
-                "pt-BR",
-                { month: "long", year: "numeric" }
-              );
-
-              const details = Object.entries(c.totais || {})
-                .map(
-                  ([name, val]) =>
-                    `<div class="history-row"><span>${name}</span><strong>${Utils.formatMoney(
-                      val
-                    )}</strong></div>`
-                )
-                .join("");
-
-              return `
-                   <div class="history-item">
-                      <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                         <span class="history-date">${
-                           monthName.charAt(0).toUpperCase() +
-                           monthName.slice(1)
-                         }</span>
-                         <span style="font-size:0.8rem; color:var(--text-muted)">Salvo em: ${
-                           c.criado_em
-                             ? new Date(
-                                 c.criado_em.seconds * 1000
-                               ).toLocaleDateString()
-                             : "Hoje"
-                         }</span>
-                      </div>
-                      <div class="history-details">${details}</div>
-                   </div>
-                `;
-            })
-            .join("");
-        }
-
-        // ... [Resto da lógica de renderização e modal igual] ...
 
         function render() {
           renderGrid();
