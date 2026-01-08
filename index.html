@@ -341,6 +341,9 @@
       .user-junior {
         --u-color: #10b981;
       }
+      .user-sem-escala {
+        --u-color: #94a3b8;
+      } /* Cinza para Sem Escala */
 
       /* CONTENT */
       .content {
@@ -1350,6 +1353,7 @@
               <option value="Jefferson">Jefferson</option>
               <option value="Jessé">Jessé</option>
               <option value="Júnior">Júnior</option>
+              <option value="Sem Escala">Sem Escala</option>
             </select>
           </div>
 
@@ -1373,6 +1377,7 @@
               <option value="Ponto Facultativo (Folga)">
                 Ponto Facultativo (Folga)
               </option>
+              <option value="Sem Escala">Sem Escala</option>
             </select>
           </div>
         </div>
@@ -1467,11 +1472,13 @@
             currency: "BRL",
           }).format(val);
         },
+        // Atualizado para lidar com espaços (ex: "Sem Escala" -> "sem-escala")
         normalize: (str) =>
           str
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase(),
+            .toLowerCase()
+            .replace(/\s+/g, "-"),
         getLocalISODate: () => {
           const d = new Date();
           const offset = d.getTimezoneOffset() * 60000;
@@ -1486,6 +1493,7 @@
           if (type.includes("100%")) return "badge-100";
           if (type.includes("Folga")) return "badge-folga";
           if (type.includes("Pagando")) return "badge-pagando";
+          if (type === "Sem Escala") return "badge-normal"; // Estilo cinza para Sem Escala
           return "badge-normal";
         },
         showToast: (msg, type = "success") => {
@@ -1567,6 +1575,7 @@
               "Domingo (100%)": 2.0,
               "Feriado (100%)": 2.0,
               "Ponto Facultativo (Folga)": 0,
+              "Sem Escala": 0,
             },
           };
 
@@ -1719,6 +1728,25 @@
               if (!document.body.hasAttribute("data-ready")) {
                 setupTheme();
                 setupScrollToTop();
+
+                // --- NOVA AUTOMAÇÃO: LISTENER NO SELECT DO NOME ---
+                document
+                  .getElementById("editName")
+                  .addEventListener("change", (e) => {
+                    const typeSelect = document.getElementById("editType");
+                    if (e.target.value === "Sem Escala") {
+                      typeSelect.value = "Sem Escala";
+                    } else {
+                      // Se voltar para um nome, volta para Sábado (50%) se o tipo atual for neutro
+                      if (
+                        typeSelect.value === "Ponto Facultativo (Folga)" ||
+                        typeSelect.value === "Sem Escala"
+                      ) {
+                        typeSelect.value = "Sábado (50%)";
+                      }
+                    }
+                  });
+
                 document.body.setAttribute("data-ready", "true");
               }
               render();
@@ -2059,20 +2087,14 @@
         }
 
         function renderNextShift() {
-          const todayStr = Utils.getLocalISODate(); // Data atual YYYY-MM-DD
-          const currentHour = new Date().getHours(); // Hora atual (0-23)
+          const today = Utils.getLocalISODate();
+          const currentHour = new Date().getHours();
 
-          // Lógica atualizada: Próximo plantão muda após as 17h do dia do plantão atual
           const next = state.find((item) => {
-            // Se for data futura, é candidato
-            if (item.date > todayStr) return true;
-
-            // Se for hoje, só mostra se for ANTES das 17h
-            if (item.date === todayStr) {
+            if (item.date > today) return true;
+            if (item.date === today) {
               return currentHour < 17;
             }
-
-            // Datas passadas são ignoradas
             return false;
           });
 
@@ -2086,6 +2108,9 @@
               gradient = "linear-gradient(135deg, #f59e0b, #b45309)";
             else if (nameNorm === "junior")
               gradient = "linear-gradient(135deg, #10b981, #047857)";
+            else if (nameNorm === "sem-escala")
+              gradient =
+                "linear-gradient(135deg, #64748b, #334155)"; // Cinza para destaque
             else gradient = "linear-gradient(135deg, #3b82f6, #1d4ed8)";
             els.nextCard.style.background = gradient;
           } else {
@@ -2120,10 +2145,14 @@
 
           const currentItem = state[idx];
           const oldDate = currentItem.date;
+          const oldName = currentItem.name; // Guardar nome antigo para comparação
 
+          // CONFLITOS E MUDANÇAS DE DATA
           if (newDate !== oldDate) {
             const conflictIdx = state.findIndex((i) => i.date === newDate);
+
             if (conflictIdx !== -1) {
+              // CASO 1: CONFLITO (Troca)
               if (
                 !confirm(
                   `A data ${newDate} já está ocupada por ${state[conflictIdx].name}. Deseja trocar?`
@@ -2132,18 +2161,57 @@
                 return;
               }
               state[conflictIdx].date = oldDate;
+              // Salva a troca do outro funcionário para a data antiga
               FirebaseDataService.save([state[conflictIdx]]);
               Utils.showToast("Troca de plantão realizada!", "warning");
             } else {
+              // CASO 2: SEM CONFLITO (Mudança para data vazia)
               FirebaseDataService.delete(oldDate);
             }
           }
 
+          // Atualiza o item atual localmente
           state[idx] = { date: newDate, name: newName, type: newType };
-          FirebaseDataService.save([state[idx]]);
+
+          // Lista de itens para salvar no Firebase
+          const updates = [state[idx]];
+
+          // --- LÓGICA DE CASCATA (NOVO) ---
+          // Se o nome mudou, perguntar se quer reordenar os seguintes
+          // --- LÓGICA DE CASCATA ---
+          if (newName !== oldName) {
+            // Só aplica cascata se o novo nome for um dos funcionários principais (Ignora "Sem Escala")
+            const staff = ["Jessé", "Júnior", "Jefferson"];
+            if (staff.includes(newName)) {
+              if (
+                confirm(
+                  `Mudou o colaborador para ${newName}. Deseja reajustar automaticamente a sequência dos plantões SEGUINTES?`
+                )
+              ) {
+                let staffIndex = staff.indexOf(newName);
+                if (staffIndex !== -1) {
+                  for (let i = idx + 1; i < state.length; i++) {
+                    // Pula dias que já estão marcados como "Sem Escala" para não bagunçar
+                    if (state[i].name !== "Sem Escala") {
+                      staffIndex = (staffIndex + 1) % staff.length;
+                      state[i].name = staff[staffIndex];
+                      updates.push(state[i]);
+                    }
+                  }
+                  Utils.showToast(
+                    "Sequência reajustada com sucesso!",
+                    "success"
+                  );
+                }
+              }
+            }
+          }
+
+          FirebaseDataService.save(updates);
+
           render();
           closeModal();
-          if (newDate === oldDate)
+          if (newDate === oldDate && updates.length === 1)
             Utils.showToast("Alterações salvas com sucesso!", "success");
         }
 
